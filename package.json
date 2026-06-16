@@ -1,0 +1,16 @@
+{
+  "name": "should-i-live-here",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.7.1",
+  "scripts": {
+    "nx": "nx",
+    "dev": "nx run-many -t dev -p api,web --parallel=2",
+    "build": "nx run-many -t build -p api,web",
+    "lint": "nx run-many -t lint -p api,web",
+    "test": "nx run-many -t test -p api,web"
+  },
+  "devDependencies": {
+    "nx": "21.6.11"
+  }
+}

@@ -4,6 +4,35 @@
   "projectType": "application",
   "sourceRoot": "apps/api",
   "tags": ["type:backend"],
-  "targets": {}
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "mkdir -p ../../.cache/go-build && GOCACHE=$(pwd)/../../.cache/go-build go run ./cmd/api"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/api"],
+      "options": {
+        "cwd": "apps/api",
+        "command": "mkdir -p ../../.cache/go-build ../../dist/apps/api && GOCACHE=$(pwd)/../../.cache/go-build go build -o ../../dist/apps/api/api ./cmd/api"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "mkdir -p ../../.cache/go-build && GOCACHE=$(pwd)/../../.cache/go-build go vet ./..."
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "mkdir -p ../../.cache/go-build && GOCACHE=$(pwd)/../../.cache/go-build go test ./..."
+      }
+    }
+  }
 }
-

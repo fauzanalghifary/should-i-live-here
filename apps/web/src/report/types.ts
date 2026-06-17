@@ -50,5 +50,4 @@ export type LivabilityReport = {
   radius_meters: number;
   counts: CategoryCounts;
   places: PlacesByCategory;
-  score: number;
 };

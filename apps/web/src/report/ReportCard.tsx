@@ -53,15 +53,9 @@ export function ReportCard({
             Report
           </p>
           {report ? (
-            <>
-              <p className="m-0 mt-2 text-[3.4rem] leading-none font-medium">
-                {report.score}
-                <span className="ml-1 text-lg text-[#5a6a60]">/100</span>
-              </p>
-              <p className="mt-2 font-mono text-[0.7rem] text-[#5a6a60]">
-                within {report.radius_meters}m of the marker
-              </p>
-            </>
+            <p className="mt-2 font-mono text-[0.7rem] text-[#5a6a60]">
+              within {report.radius_meters}m of the marker
+            </p>
           ) : null}
         </div>
         <button

@@ -55,7 +55,6 @@ type Report struct {
 	RadiusMeters int              `json:"radius_meters"`
 	Counts       Categories       `json:"counts"`
 	Places       PlacesByCategory `json:"places"`
-	Score        int              `json:"score"`
 }
 
 type Fetcher interface {
@@ -75,15 +74,14 @@ func NewService(fetcher Fetcher) *Service {
 type categoryQuery struct {
 	name       string
 	categories string
-	cap        int
 }
 
 var categoryQueries = []categoryQuery{
-	{"essentials", "convenience_store,grocery_store,supermarket,market,discount_store,discount_supermarket,general_store,food_store", 10},
-	{"transport", "bus_station,train_station,subway_station,light_rail_station,transit_station,ferry_terminal", 10},
-	{"healthcare", "hospital,general_hospital,medical_clinic,medical_center,doctor,pharmacy,drugstore", 10},
-	{"education", "school,primary_school,secondary_school,university,preschool,educational_institution", 10},
-	{"green_space", "park,city_park,garden,playground,plaza", 5},
+	{"essentials", "convenience_store,grocery_store,supermarket,market,discount_store,discount_supermarket,general_store,food_store"},
+	{"transport", "bus_station,train_station,subway_station,light_rail_station,transit_station,ferry_terminal"},
+	{"healthcare", "hospital,general_hospital,medical_clinic,medical_center,doctor,pharmacy,drugstore"},
+	{"education", "school,primary_school,secondary_school,university,preschool,educational_institution"},
+	{"green_space", "park,city_park,garden,playground,plaza"},
 }
 
 func (s *Service) PlaceDetails(ctx context.Context, id string) (PlaceDetails, error) {
@@ -123,12 +121,6 @@ func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) 
 		places[r.name] = prepared
 	}
 
-	var totalScore float64
-	for _, q := range categoryQueries {
-		count := min(counts[q.name], q.cap)
-		totalScore += float64(count) / float64(q.cap) * 100
-	}
-
 	return Report{
 		Lat:          lat,
 		Lng:          lng,
@@ -147,6 +139,5 @@ func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) 
 			Education:  places["education"],
 			GreenSpace: places["green_space"],
 		},
-		Score: int(totalScore / float64(len(categoryQueries))),
 	}, nil
 }

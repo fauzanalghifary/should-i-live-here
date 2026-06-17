@@ -64,18 +64,6 @@ func TestServiceReport(t *testing.T) {
 				if len(r.Places.Essentials) != 3 || r.Places.Essentials[0].Name != "Place 1" {
 					t.Fatalf("places not populated: %+v", r.Places.Essentials)
 				}
-				if r.Score <= 0 || r.Score > 100 {
-					t.Fatalf("score out of range: %d", r.Score)
-				}
-			},
-		},
-		{
-			name:    "caps score at 100 when counts exceed caps",
-			fetcher: &stubFetcher{places: makePlaces(9999)},
-			check: func(t *testing.T, r Report) {
-				if r.Score != 100 {
-					t.Fatalf("expected score 100, got %d", r.Score)
-				}
 			},
 		},
 		{

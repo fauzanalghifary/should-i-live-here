@@ -64,9 +64,6 @@ func TestLivabilityHandler(t *testing.T) {
 				if len(report.Places.Essentials) != 5 {
 					t.Fatalf("expected 5 essential places, got %d", len(report.Places.Essentials))
 				}
-				if report.Score <= 0 || report.Score > 100 {
-					t.Fatalf("expected score in (0,100], got %d", report.Score)
-				}
 			},
 		},
 		{name: "missing lat", url: "/livability?lng=106.8", wantStatus: http.StatusBadRequest},

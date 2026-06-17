@@ -161,9 +161,11 @@ export function useLocationMap({
       markerRef.current.setLngLat(lngLat);
     }
 
+    const surroundingZoom = 13;
     map.easeTo({
       center: lngLat,
-      duration: 450,
+      duration: 800,
+      zoom: Math.max(map.getZoom(), surroundingZoom),
     });
   }, [selectedLocation]);
 

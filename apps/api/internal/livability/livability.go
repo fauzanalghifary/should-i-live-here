@@ -61,7 +61,7 @@ type categoryQuery struct {
 var categoryQueries = []categoryQuery{
 	{"essentials", "commercial.supermarket,commercial.convenience,commercial.marketplace", 10},
 	{"transport", "public_transport.bus,public_transport.train,public_transport.subway", 10},
-	{"healthcare", "healthcare.hospital,healthcare.clinic_or_praxis,healthcare.pharmacy", 10},
+	{"healthcare", "healthcare,building.healthcare", 10},
 	{"education", "education.school,education.university,education.college", 10},
 	{"green_space", "leisure.park", 5},
 }

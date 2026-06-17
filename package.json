@@ -8,7 +8,9 @@
     "dev": "nx run-many -t dev -p api,web --parallel=2",
     "build": "nx run-many -t build -p api,web",
     "lint": "nx run-many -t lint -p api,web",
-    "test": "nx run-many -t test -p api,web"
+    "test": "nx run-many -t test -p api,web",
+    "typecheck": "nx run-many -t typecheck -p web",
+    "prettier:fix": "nx run-many -t prettier:fix -p web"
   },
   "devDependencies": {
     "nx": "21.6.11"

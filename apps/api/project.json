@@ -9,7 +9,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/api",
-        "command": "mkdir -p ../../.cache/go-build && GOCACHE=$(pwd)/../../.cache/go-build go run ./cmd/api"
+        "command": "mkdir -p ../../.cache/go-build && set -a && [ -f .env ] && . ./.env; set +a; GOCACHE=$(pwd)/../../.cache/go-build go run ./cmd/api"
       }
     },
     "build": {

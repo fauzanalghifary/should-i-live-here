@@ -1,0 +1,127 @@
+package livability
+
+import (
+	"context"
+	"sync"
+)
+
+type Categories struct {
+	Essentials int `json:"essentials"`
+	Transport  int `json:"transport"`
+	Healthcare int `json:"healthcare"`
+	Education  int `json:"education"`
+	GreenSpace int `json:"green_space"`
+}
+
+type Place struct {
+	Name           string   `json:"name,omitempty"`
+	Address        string   `json:"address,omitempty"`
+	DistanceMeters int      `json:"distance_meters"`
+	Lat            float64  `json:"lat"`
+	Lng            float64  `json:"lng"`
+	Categories     []string `json:"categories,omitempty"`
+}
+
+type PlacesByCategory struct {
+	Essentials []Place `json:"essentials"`
+	Transport  []Place `json:"transport"`
+	Healthcare []Place `json:"healthcare"`
+	Education  []Place `json:"education"`
+	GreenSpace []Place `json:"green_space"`
+}
+
+type Report struct {
+	Lat          float64          `json:"lat"`
+	Lng          float64          `json:"lng"`
+	RadiusMeters int              `json:"radius_meters"`
+	Counts       Categories       `json:"counts"`
+	Places       PlacesByCategory `json:"places"`
+	Score        int              `json:"score"`
+}
+
+type Fetcher interface {
+	FindNearbyPlaces(ctx context.Context, lat, lng float64, radius int, categories string) ([]Place, error)
+}
+
+type Service struct {
+	fetcher Fetcher
+	radius  int
+}
+
+func NewService(fetcher Fetcher) *Service {
+	return &Service{fetcher: fetcher, radius: 1000}
+}
+
+type categoryQuery struct {
+	name       string
+	categories string
+	cap        int
+}
+
+var categoryQueries = []categoryQuery{
+	{"essentials", "commercial.supermarket,commercial.convenience,commercial.marketplace", 10},
+	{"transport", "public_transport", 10},
+	{"healthcare", "healthcare.hospital,healthcare.clinic_or_praxis,healthcare.pharmacy", 10},
+	{"education", "education.school,education.university,education.college", 10},
+	{"green_space", "leisure.park", 5},
+}
+
+func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) {
+	type result struct {
+		name   string
+		places []Place
+		err    error
+	}
+
+	resultCh := make(chan result, len(categoryQueries))
+	var wg sync.WaitGroup
+
+	for _, q := range categoryQueries {
+		wg.Add(1)
+		go func(q categoryQuery) {
+			defer wg.Done()
+			places, err := s.fetcher.FindNearbyPlaces(ctx, lat, lng, s.radius, q.categories)
+			resultCh <- result{name: q.name, places: places, err: err}
+		}(q)
+	}
+
+	wg.Wait()
+	close(resultCh)
+
+	counts := make(map[string]int, len(categoryQueries))
+	places := make(map[string][]Place, len(categoryQueries))
+	for r := range resultCh {
+		if r.err != nil {
+			return Report{}, r.err
+		}
+		counts[r.name] = len(r.places)
+		places[r.name] = r.places
+	}
+
+	var totalScore float64
+	for _, q := range categoryQueries {
+		count := min(counts[q.name], q.cap)
+		totalScore += float64(count) / float64(q.cap) * 100
+	}
+
+	return Report{
+		Lat:          lat,
+		Lng:          lng,
+		RadiusMeters: s.radius,
+		Counts: Categories{
+			Essentials: counts["essentials"],
+			Transport:  counts["transport"],
+			Healthcare: counts["healthcare"],
+			Education:  counts["education"],
+			GreenSpace: counts["green_space"],
+		},
+		Places: PlacesByCategory{
+			Essentials: places["essentials"],
+			Transport:  places["transport"],
+			Healthcare: places["healthcare"],
+			Education:  places["education"],
+			GreenSpace: places["green_space"],
+		},
+		Score: int(totalScore / float64(len(categoryQueries))),
+	}, nil
+}

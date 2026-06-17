@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/fauzanalghifary/should-i-live-here/apps/api/internal/livability"
 )
 
 func TestHealth(t *testing.T) {
@@ -13,7 +15,7 @@ func TestHealth(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/health", nil)
 	response := httptest.NewRecorder()
 
-	New().ServeHTTP(response, request)
+	New(livability.NewService(&stubFetcher{})).ServeHTTP(response, request)
 
 	if response.Code != http.StatusOK {
 		t.Fatalf("expected status %d, got %d", http.StatusOK, response.Code)

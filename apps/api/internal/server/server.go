@@ -2,29 +2,29 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+
+	"github.com/fauzanalghifary/should-i-live-here/apps/api/internal/livability"
 )
 
-type healthResponse struct {
-	Status string `json:"status"`
-}
-
-func New() http.Handler {
+func New(livabilityService *livability.Service) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handleHealth)
+	mux.HandleFunc("GET /livability", handleLivability(livabilityService))
 
 	return mux
 }
 
-func handleHealth(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, healthResponse{Status: "ok"})
-}
-
-func writeJSON(w http.ResponseWriter, statusCode int, body healthResponse) {
+func writeJSON(w http.ResponseWriter, statusCode int, body any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
 	if err := json.NewEncoder(w).Encode(body); err != nil {
-		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		log.Printf("failed to encode response: %v", err)
 	}
+}
+
+func writeError(w http.ResponseWriter, statusCode int, message string) {
+	writeJSON(w, statusCode, map[string]string{"error": message})
 }

@@ -13,13 +13,16 @@ import {
   loadIndonesiaBoundary,
   type IndonesiaBoundary,
 } from "./indonesiaBoundary";
+import { distanceMeters } from "./geometry";
 import {
+  createRepickPopupElement,
   createSelectedMarkerElement,
   createUnsupportedLocationPopupElement,
 } from "./mapElements";
 import { mapStyle } from "./mapStyle";
 import {
   CATEGORY_PLACES_LAYER,
+  SEARCH_RADIUS_METERS,
   SWEEP_DEG_PER_SECOND,
   addOverlayLayers,
   clearSearchSweep,
@@ -39,6 +42,7 @@ type UseLocationMapParams = {
   onLocationSelect: (location: LocationCoordinate) => void;
   onEaseEnd: (location: LocationCoordinate) => void;
   onMapPlaceClick: (placeId: string) => void;
+  onClearSelection: () => void;
 };
 
 const SELECTED_LOCATION_ZOOM = 12;
@@ -54,6 +58,7 @@ export function useLocationMap({
   onLocationSelect,
   onEaseEnd,
   onMapPlaceClick,
+  onClearSelection,
 }: UseLocationMapParams) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -68,6 +73,7 @@ export function useLocationMap({
   const onLocationSelectRef = useRef(onLocationSelect);
   const onEaseEndRef = useRef(onEaseEnd);
   const onMapPlaceClickRef = useRef(onMapPlaceClick);
+  const onClearSelectionRef = useRef(onClearSelection);
   const categoryPlacesRef = useRef<Place[]>(categoryPlaces);
 
   useEffect(() => {
@@ -81,6 +87,10 @@ export function useLocationMap({
   useEffect(() => {
     onMapPlaceClickRef.current = onMapPlaceClick;
   }, [onMapPlaceClick]);
+
+  useEffect(() => {
+    onClearSelectionRef.current = onClearSelection;
+  }, [onClearSelection]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -140,32 +150,37 @@ export function useLocationMap({
     });
 
     map.on("click", (event: MapMouseEvent) => {
-      if (selectedLocationRef.current !== null) {
-        return;
-      }
-
       const boundary = indonesiaBoundaryRef.current;
-
       if (!boundary) {
         return;
       }
 
+      const currentLocation = selectedLocationRef.current;
+
+      if (currentLocation !== null) {
+        const distance = distanceMeters(
+          currentLocation.lng,
+          currentLocation.lat,
+          event.lngLat.lng,
+          event.lngLat.lat,
+        );
+        if (distance <= SEARCH_RADIUS_METERS) {
+          return;
+        }
+
+        if (
+          !isPointInIndonesia(event.lngLat.lng, event.lngLat.lat, boundary)
+        ) {
+          showUnsupportedPopup(map, event.lngLat.lng, event.lngLat.lat);
+          return;
+        }
+
+        showRepickPopup(map, event.lngLat.lng, event.lngLat.lat);
+        return;
+      }
+
       if (!isPointInIndonesia(event.lngLat.lng, event.lngLat.lat, boundary)) {
-        popupRef.current?.remove();
-        popupRef.current = new maplibregl.Popup({
-          className: "location-map-popup",
-          closeButton: false,
-          closeOnClick: true,
-          offset: 16,
-        })
-          .setLngLat(event.lngLat)
-          .setDOMContent(
-            createUnsupportedLocationPopupElement(
-              event.lngLat.lng,
-              event.lngLat.lat,
-            ),
-          )
-          .addTo(map);
+        showUnsupportedPopup(map, event.lngLat.lng, event.lngLat.lat);
         return;
       }
 
@@ -177,6 +192,49 @@ export function useLocationMap({
         lng: event.lngLat.lng,
       });
     });
+
+    const showUnsupportedPopup = (
+      target: MapLibreMap,
+      lng: number,
+      lat: number,
+    ) => {
+      popupRef.current?.remove();
+      popupRef.current = new maplibregl.Popup({
+        className: "location-map-popup",
+        closeButton: false,
+        closeOnClick: true,
+        offset: 16,
+      })
+        .setLngLat([lng, lat])
+        .setDOMContent(createUnsupportedLocationPopupElement(lng, lat))
+        .addTo(target);
+    };
+
+    const showRepickPopup = (
+      target: MapLibreMap,
+      lng: number,
+      lat: number,
+    ) => {
+      popupRef.current?.remove();
+      const dismiss = () => {
+        popupRef.current?.remove();
+        popupRef.current = null;
+      };
+      popupRef.current = new maplibregl.Popup({
+        className: "location-map-popup",
+        closeButton: false,
+        closeOnClick: false,
+        offset: 16,
+      })
+        .setLngLat([lng, lat])
+        .setDOMContent(
+          createRepickPopupElement(() => {
+            dismiss();
+            onClearSelectionRef.current();
+          }, dismiss),
+        )
+        .addTo(target);
+    };
 
     mapRef.current = map;
 

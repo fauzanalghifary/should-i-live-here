@@ -80,6 +80,7 @@ export function App() {
           <LocationMap
             categoryPlaces={mapPlaces}
             isFetchingReport={reportQuery.isLoading}
+            onClearSelection={handleCloseReport}
             onEaseEnd={handleEaseEnd}
             onLocationSelect={handleSelectLocation}
             onMapPlaceClick={handleMapPlaceClick}

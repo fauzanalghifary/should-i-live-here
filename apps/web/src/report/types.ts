@@ -33,9 +33,3 @@ export type LivabilityReport = {
   places: PlacesByCategory;
   score: number;
 };
-
-export type ReportState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "success"; report: LivabilityReport }
-  | { status: "error"; error: string };

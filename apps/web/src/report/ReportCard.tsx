@@ -26,57 +26,39 @@ const CATEGORY_ORDER: CategoryKey[] = [
 const PLACES_PER_CATEGORY = 3;
 
 export function ReportCard({ location, onClose }: ReportCardProps) {
-  const state = useLivabilityReport(location);
+  const { data, error, isLoading } = useLivabilityReport(location);
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
-    <aside
-      aria-label="Neighborhood report"
-      className="absolute bottom-4 left-4 z-10 flex max-h-[calc(100vh-2rem)] w-[min(22rem,calc(100vw-2rem))] flex-col border border-[#17211c21] bg-[#fffdf6] shadow-[0_18px_40px_-18px_rgba(23,33,28,0.45)] sm:bottom-6 sm:left-6 sm:max-h-[calc(100vh-3rem)]"
+    <div
+      aria-labelledby="report-title"
+      aria-modal="true"
+      className="report-sheet-in absolute inset-x-0 bottom-0 z-20 flex h-[80vh] flex-col border-t border-[#17211c21] bg-[#fffdf6] text-[#17211c] shadow-[0_-24px_60px_-24px_rgba(23,33,28,0.35)]"
+      role="dialog"
     >
-      <header className="flex items-start justify-between gap-3 border-b border-[#17211c14] px-5 py-4 sm:px-6">
+      <header className="flex items-start justify-between gap-4 border-b border-[#17211c14] px-6 py-5 sm:px-10 sm:py-6">
         <div>
           <p className="m-0 font-mono text-xs font-bold tracking-normal text-[#5a6a60] uppercase">
             Report
           </p>
-          <p className="mt-0.5 font-mono text-[0.7rem] text-[#5a6a60]">
-            {formatCoordinate(location.lat)}, {formatCoordinate(location.lng)}
-          </p>
         </div>
         <button
-          aria-label="Dismiss report"
-          className="-m-1 border-0 bg-transparent p-1 text-[#5a6a60] hover:text-[#17211c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17211c]"
+          className="shrink-0 border border-[#17211c] bg-[#17211c] px-4 py-2.5 font-mono text-[0.72rem] font-bold tracking-wider text-[#fffdf6] uppercase transition-colors hover:bg-[#24352b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17211c] sm:px-5 sm:py-3"
           onClick={onClose}
           type="button"
         >
-          <svg
-            aria-hidden="true"
-            fill="none"
-            height="18"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <path d="M6 6l12 12M6 18L18 6" />
-          </svg>
+          Pick another location
         </button>
       </header>
 
-      <div className="overflow-y-auto px-5 py-4 sm:px-6">
-        {state.status === "loading" ? <LoadingState /> : null}
-        {state.status === "error" ? <ErrorState message={state.error} /> : null}
-        {state.status === "success" ? <ReportBody report={state.report} /> : null}
+      <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-10 sm:py-8">
+        {error ? <ErrorState message={error.message} /> : null}
+        {data ? <ReportBody report={data} /> : null}
       </div>
-    </aside>
-  );
-}
-
-function LoadingState() {
-  return (
-    <p className="m-0 font-mono text-[0.78rem] text-[#5a6a60] uppercase">
-      Loading nearby places…
-    </p>
+    </div>
   );
 }
 
@@ -93,23 +75,21 @@ function ErrorState({ message }: { message: string }) {
 
 function ReportBody({ report }: { report: LivabilityReport }) {
   return (
-    <div>
-      <div className="flex items-baseline justify-between border-b border-[#17211c14] pb-3">
-        <div>
-          <p className="m-0 font-mono text-[0.7rem] font-bold text-[#5a6a60] uppercase">
-            Livability score
-          </p>
-          <p className="m-0 text-4xl font-medium leading-none">
-            {report.score}
-            <span className="ml-1 text-base text-[#5a6a60]">/100</span>
-          </p>
-        </div>
-        <p className="m-0 font-mono text-[0.7rem] text-[#5a6a60]">
-          within {report.radius_meters}m
+    <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(220px,260px)_1fr] lg:gap-12">
+      <div className="border-b border-[#17211c14] pb-6 lg:border-r lg:border-b-0 lg:pr-12 lg:pb-0">
+        <p className="m-0 font-mono text-[0.7rem] font-bold text-[#5a6a60] uppercase">
+          Livability score
+        </p>
+        <p className="m-0 mt-2 text-[5rem] leading-none font-medium">
+          {report.score}
+          <span className="ml-1 text-xl text-[#5a6a60]">/100</span>
+        </p>
+        <p className="mt-3 font-mono text-[0.72rem] text-[#5a6a60]">
+          within {report.radius_meters}m of the marker
         </p>
       </div>
 
-      <ul className="mt-3 grid list-none gap-3 p-0">
+      <ul className="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         {CATEGORY_ORDER.map((key) => (
           <CategorySection
             count={report.counts[key]}
@@ -133,8 +113,8 @@ function CategorySection({ count, label, places }: CategorySectionProps) {
   const top = sortByDistance(places).slice(0, PLACES_PER_CATEGORY);
 
   return (
-    <li>
-      <div className="flex items-baseline justify-between">
+    <li className="border border-[#17211c14] bg-[#fbf8ef] p-4">
+      <div className="flex items-baseline justify-between gap-2">
         <p className="m-0 font-mono text-[0.72rem] font-bold text-[#24352b] uppercase">
           {label}
         </p>
@@ -143,13 +123,14 @@ function CategorySection({ count, label, places }: CategorySectionProps) {
         </p>
       </div>
       {top.length === 0 ? (
-        <p className="mt-1 text-[0.85rem] text-[#5a6a60]">
-          None within {/* keep empty radius copy minimal */}range.
-        </p>
+        <p className="mt-2 text-[0.85rem] text-[#5a6a60]">None within range.</p>
       ) : (
-        <ul className="mt-1 grid list-none gap-1 p-0 text-[0.88rem] text-[#24352b]">
+        <ul className="mt-2 grid list-none gap-1.5 p-0 text-[0.9rem] text-[#24352b]">
           {top.map((place, index) => (
-            <li className="flex items-baseline justify-between gap-2" key={index}>
+            <li
+              className="flex items-baseline justify-between gap-2"
+              key={index}
+            >
               <span className="truncate">{place.name ?? "Unnamed"}</span>
               <span className="shrink-0 font-mono text-[0.72rem] text-[#5a6a60]">
                 {formatDistance(place.distance_meters)}
@@ -171,8 +152,4 @@ function formatDistance(meters: number): string {
     return `${(meters / 1000).toFixed(1)}km`;
   }
   return `${meters.toString()}m`;
-}
-
-function formatCoordinate(value: number): string {
-  return value.toFixed(4);
 }

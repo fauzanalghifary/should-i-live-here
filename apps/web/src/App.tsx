@@ -14,20 +14,13 @@ export function App() {
   const [selectedLocation, setSelectedLocation] =
     useState<LocationCoordinate | null>(null);
   const [showIntro, setShowIntro] = useState(true);
-  const [dismissedLocationKey, setDismissedLocationKey] = useState<
-    string | null
-  >(null);
-
-  const selectedKey = selectedLocation
-    ? `${selectedLocation.lat.toString()},${selectedLocation.lng.toString()}`
-    : null;
 
   const handleDismissIntro = () => {
     setShowIntro(false);
   };
 
-  const handleDismissReport = () => {
-    setDismissedLocationKey(selectedKey);
+  const handleCloseReport = () => {
+    setSelectedLocation(null);
   };
 
   return (
@@ -41,8 +34,8 @@ export function App() {
         </Suspense>
       </div>
 
-      {selectedLocation !== null && dismissedLocationKey !== selectedKey ? (
-        <ReportCard location={selectedLocation} onClose={handleDismissReport} />
+      {selectedLocation !== null ? (
+        <ReportCard location={selectedLocation} onClose={handleCloseReport} />
       ) : null}
 
       {showIntro ? <IntroModal onDismiss={handleDismissIntro} /> : null}

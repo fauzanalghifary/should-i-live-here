@@ -12,8 +12,10 @@ import (
 )
 
 type stubFetcher struct {
-	places []livability.Place
-	err    error
+	places      []livability.Place
+	err         error
+	detailsByID map[string]livability.PlaceDetails
+	detailsErr  error
 }
 
 func (s *stubFetcher) FindNearbyPlaces(_ context.Context, _, _ float64, _ int, _ string) ([]livability.Place, error) {
@@ -21,6 +23,16 @@ func (s *stubFetcher) FindNearbyPlaces(_ context.Context, _, _ float64, _ int, _
 		return nil, s.err
 	}
 	return s.places, nil
+}
+
+func (s *stubFetcher) GetPlaceDetails(_ context.Context, id string) (livability.PlaceDetails, error) {
+	if s.detailsErr != nil {
+		return livability.PlaceDetails{}, s.detailsErr
+	}
+	if details, ok := s.detailsByID[id]; ok {
+		return details, nil
+	}
+	return livability.PlaceDetails{}, livability.ErrPlaceNotFound
 }
 
 func TestLivabilityHandler(t *testing.T) {

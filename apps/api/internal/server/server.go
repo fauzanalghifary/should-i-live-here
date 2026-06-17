@@ -12,6 +12,7 @@ func New(livabilityService *livability.Service) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handleHealth)
 	mux.HandleFunc("GET /livability", handleLivability(livabilityService))
+	mux.HandleFunc("GET /places/{id}", handlePlaceDetails(livabilityService))
 
 	return withCORS(mux)
 }

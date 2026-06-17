@@ -13,7 +13,9 @@ var errStubFetcher = errors.New("stub fetcher failure")
 type stubFetcher struct {
 	places             []Place
 	placesByCategories map[string][]Place
+	detailsByID        map[string]PlaceDetails
 	err                error
+	detailsErr         error
 	calls              atomic.Int32
 }
 
@@ -26,6 +28,16 @@ func (s *stubFetcher) FindNearbyPlaces(_ context.Context, _, _ float64, _ int, c
 		return s.placesByCategories[categories], nil
 	}
 	return s.places, nil
+}
+
+func (s *stubFetcher) GetPlaceDetails(_ context.Context, id string) (PlaceDetails, error) {
+	if s.detailsErr != nil {
+		return PlaceDetails{}, s.detailsErr
+	}
+	if details, ok := s.detailsByID[id]; ok {
+		return details, nil
+	}
+	return PlaceDetails{}, ErrPlaceNotFound
 }
 
 func TestServiceReport(t *testing.T) {

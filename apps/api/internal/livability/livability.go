@@ -14,12 +14,31 @@ type Categories struct {
 }
 
 type Place struct {
+	ID             string   `json:"id,omitempty"`
 	Name           string   `json:"name,omitempty"`
 	Address        string   `json:"address,omitempty"`
 	DistanceMeters int      `json:"distance_meters"`
 	Lat            float64  `json:"lat"`
 	Lng            float64  `json:"lng"`
 	Categories     []string `json:"categories,omitempty"`
+}
+
+type PlaceDetails struct {
+	ID             string   `json:"id"`
+	Name           string   `json:"name,omitempty"`
+	Address        string   `json:"address,omitempty"`
+	Lat            float64  `json:"lat"`
+	Lng            float64  `json:"lng"`
+	Rating         float64  `json:"rating,omitempty"`
+	RatingCount    int      `json:"rating_count,omitempty"`
+	OpenNow        *bool    `json:"open_now,omitempty"`
+	WeekdayHours   []string `json:"weekday_hours,omitempty"`
+	Phone          string   `json:"phone,omitempty"`
+	Website        string   `json:"website,omitempty"`
+	PriceLevel     string   `json:"price_level,omitempty"`
+	BusinessStatus string   `json:"business_status,omitempty"`
+	Categories     []string `json:"categories,omitempty"`
+	PhotoURL       string   `json:"photo_url,omitempty"`
 }
 
 type PlacesByCategory struct {
@@ -41,6 +60,7 @@ type Report struct {
 
 type Fetcher interface {
 	FindNearbyPlaces(ctx context.Context, lat, lng float64, radius int, categories string) ([]Place, error)
+	GetPlaceDetails(ctx context.Context, id string) (PlaceDetails, error)
 }
 
 type Service struct {
@@ -64,6 +84,10 @@ var categoryQueries = []categoryQuery{
 	{"healthcare", "hospital,general_hospital,medical_clinic,medical_center,doctor,pharmacy,drugstore", 10},
 	{"education", "school,primary_school,secondary_school,university,preschool,educational_institution", 10},
 	{"green_space", "park,city_park,garden,playground,plaza", 5},
+}
+
+func (s *Service) PlaceDetails(ctx context.Context, id string) (PlaceDetails, error) {
+	return s.fetcher.GetPlaceDetails(ctx, id)
 }
 
 func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) {

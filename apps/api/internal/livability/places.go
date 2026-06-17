@@ -6,15 +6,7 @@ import (
 )
 
 func preparePlaces(category string, places []Place) []Place {
-	switch category {
-	case "healthcare":
-		return dedupeNearbyPlaces(filterNamedPlaces(labelHealthcarePlaces(places)))
-	case "transport":
-		named := filterNamedPlaces(places)
-		return dedupeNearbyPlaces(labelTransportPlaces(filterTransportPlaces(named)))
-	default:
-		return dedupeNearbyPlaces(filterNamedPlaces(places))
-	}
+	return dedupeNearbyPlaces(filterNamedPlaces(places))
 }
 
 func filterNamedPlaces(places []Place) []Place {

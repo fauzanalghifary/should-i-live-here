@@ -5,6 +5,8 @@ export type Place = {
   distance_meters: number;
   lat: number;
   lng: number;
+  rating?: number;
+  rating_count?: number;
   categories?: string[];
 };
 

@@ -16,7 +16,7 @@ var ErrPlaceNotFound = errors.New("place not found")
 const (
 	defaultGooglePlacesBaseURL  = "https://places.googleapis.com/v1/places:searchNearby"
 	defaultGooglePlacesPlaceURL = "https://places.googleapis.com/v1/places"
-	googlePlacesFieldMask       = "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType"
+	googlePlacesFieldMask       = "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType,places.rating,places.userRatingCount"
 	googlePlaceDetailsFieldMask = "id,displayName,formattedAddress,location,types,primaryType,rating,userRatingCount,currentOpeningHours,regularOpeningHours,internationalPhoneNumber,nationalPhoneNumber,websiteUri,priceLevel,businessStatus,photos"
 	googlePlacePhotoMaxHeightPx = 400
 )
@@ -68,6 +68,8 @@ type googlePlace struct {
 	Location         googlePlacesLocation   `json:"location"`
 	Types            []string               `json:"types"`
 	PrimaryType      string                 `json:"primaryType"`
+	Rating           float64                `json:"rating"`
+	UserRatingCount  int                    `json:"userRatingCount"`
 }
 
 type googlePlaceDisplayName struct {
@@ -124,6 +126,8 @@ func (c *GooglePlacesClient) FindNearbyPlaces(ctx context.Context, lat, lng floa
 			DistanceMeters: int(distanceMeters(lat, lng, googlePlace.Location.Latitude, googlePlace.Location.Longitude)),
 			Lat:            googlePlace.Location.Latitude,
 			Lng:            googlePlace.Location.Longitude,
+			Rating:         googlePlace.Rating,
+			RatingCount:    googlePlace.UserRatingCount,
 			Categories:     googlePlace.Types,
 		})
 	}

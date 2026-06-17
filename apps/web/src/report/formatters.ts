@@ -1,12 +1,29 @@
 import type { Place } from "./types";
 
+export type PlaceSortKey = "distance" | "rating" | "reviews";
+
 export function sortByDistance(places: Place[]): Place[] {
   return [...places].sort((a, b) => a.distance_meters - b.distance_meters);
+}
+
+export function sortPlaces(places: Place[], sortKey: PlaceSortKey): Place[] {
+  switch (sortKey) {
+    case "rating":
+      return [...places].sort(compareByRating);
+    case "reviews":
+      return [...places].sort(compareByReviewCount);
+    case "distance":
+      return sortByDistance(places);
+  }
 }
 
 export function formatWalk(meters: number): string {
   const minutes = Math.max(1, Math.round(meters / 80));
   return `${minutes.toString()} min walk`;
+}
+
+export function formatRating(rating: number): string {
+  return rating.toFixed(1);
 }
 
 export function formatCategoryTag(category: string): string {
@@ -36,4 +53,24 @@ export function formatWebsite(url: string): string {
   } catch {
     return url;
   }
+}
+
+function compareByRating(a: Place, b: Place) {
+  return (
+    valueOrBottom(b.rating) - valueOrBottom(a.rating) ||
+    valueOrBottom(b.rating_count) - valueOrBottom(a.rating_count) ||
+    a.distance_meters - b.distance_meters
+  );
+}
+
+function compareByReviewCount(a: Place, b: Place) {
+  return (
+    valueOrBottom(b.rating_count) - valueOrBottom(a.rating_count) ||
+    valueOrBottom(b.rating) - valueOrBottom(a.rating) ||
+    a.distance_meters - b.distance_meters
+  );
+}
+
+function valueOrBottom(value: number | undefined) {
+  return value ?? -1;
 }

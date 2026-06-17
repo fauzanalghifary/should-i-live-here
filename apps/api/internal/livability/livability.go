@@ -20,6 +20,8 @@ type Place struct {
 	DistanceMeters int      `json:"distance_meters"`
 	Lat            float64  `json:"lat"`
 	Lng            float64  `json:"lng"`
+	Rating         float64  `json:"rating,omitempty"`
+	RatingCount    int      `json:"rating_count,omitempty"`
 	Categories     []string `json:"categories,omitempty"`
 }
 

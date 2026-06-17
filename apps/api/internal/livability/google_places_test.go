@@ -29,6 +29,8 @@ func TestGooglePlacesClientFindNearbyPlaces(t *testing.T) {
 						"displayName": { "text": "Alfamart" },
 						"formattedAddress": "Alfamart, Majalengka, West Java, Indonesia",
 						"location": { "latitude": -6.201, "longitude": 106.801 },
+						"rating": 4.4,
+						"userRatingCount": 72,
 						"types": ["convenience_store", "store", "point_of_interest"],
 						"primaryType": "convenience_store"
 					},
@@ -36,6 +38,8 @@ func TestGooglePlacesClientFindNearbyPlaces(t *testing.T) {
 						"displayName": { "text": "Pasar Majalengka" },
 						"formattedAddress": "Pasar Majalengka, West Java, Indonesia",
 						"location": { "latitude": -6.202, "longitude": 106.802 },
+						"rating": 4.1,
+						"userRatingCount": 148,
 						"types": ["market", "store", "point_of_interest"],
 						"primaryType": "market"
 					}
@@ -48,6 +52,8 @@ func TestGooglePlacesClientFindNearbyPlaces(t *testing.T) {
 					DistanceMeters: 156,
 					Lat:            -6.201,
 					Lng:            106.801,
+					Rating:         4.4,
+					RatingCount:    72,
 					Categories:     []string{"convenience_store", "store", "point_of_interest"},
 				},
 				{
@@ -56,6 +62,8 @@ func TestGooglePlacesClientFindNearbyPlaces(t *testing.T) {
 					DistanceMeters: 313,
 					Lat:            -6.202,
 					Lng:            106.802,
+					Rating:         4.1,
+					RatingCount:    148,
 					Categories:     []string{"market", "store", "point_of_interest"},
 				},
 			},

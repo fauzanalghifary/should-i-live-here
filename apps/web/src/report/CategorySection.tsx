@@ -72,9 +72,7 @@ export function CategorySection({
                       aria-expanded={isSelected}
                       className={[
                         "flex w-full items-baseline gap-3 px-6 py-2.5 text-left transition-colors",
-                        isSelected
-                          ? "bg-[#eef4df]"
-                          : "hover:bg-[#f6f3ea]",
+                        isSelected ? "bg-[#eef4df]" : "hover:bg-[#f6f3ea]",
                       ].join(" ")}
                       onClick={() => {
                         onPlaceSelect(isSelected ? null : place);

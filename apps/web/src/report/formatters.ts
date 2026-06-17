@@ -1,4 +1,4 @@
-  import type { Place } from "./types";
+import type { Place } from "./types";
 
 export function sortByDistance(places: Place[]): Place[] {
   return [...places].sort((a, b) => a.distance_meters - b.distance_meters);

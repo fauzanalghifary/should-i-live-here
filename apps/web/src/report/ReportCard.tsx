@@ -1,3 +1,5 @@
+import { Drawer } from "vaul";
+
 import type { LocationCoordinate } from "../location-map/types";
 import type { CategoryKey, LivabilityReport, Place } from "./types";
 import { useLivabilityReport } from "./useLivabilityReport";
@@ -33,32 +35,44 @@ export function ReportCard({ location, onClose }: ReportCardProps) {
   }
 
   return (
-    <div
-      aria-labelledby="report-title"
-      aria-modal="true"
-      className="report-sheet-in absolute inset-x-0 bottom-0 z-20 flex h-[80vh] flex-col border-t border-[#17211c21] bg-[#fffdf6] text-[#17211c] shadow-[0_-24px_60px_-24px_rgba(23,33,28,0.35)]"
-      role="dialog"
+    <Drawer.Root
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+      open
     >
-      <header className="flex items-start justify-between gap-4 border-b border-[#17211c14] px-6 py-5 sm:px-10 sm:py-6">
-        <div>
-          <p className="m-0 font-mono text-xs font-bold tracking-normal text-[#5a6a60] uppercase">
-            Report
-          </p>
-        </div>
-        <button
-          className="shrink-0 border border-[#17211c] bg-[#17211c] px-4 py-2.5 font-mono text-[0.72rem] font-bold tracking-wider text-[#fffdf6] uppercase transition-colors hover:bg-[#24352b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17211c] sm:px-5 sm:py-3"
-          onClick={onClose}
-          type="button"
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 z-20 bg-[#17211c]/20" />
+        <Drawer.Content
+          aria-describedby={undefined}
+          className="fixed inset-x-0 bottom-0 z-30 flex h-[92vh] flex-col border-t border-[#17211c21] bg-[#fffdf6] text-[#17211c] shadow-[0_-24px_60px_-24px_rgba(23,33,28,0.35)] outline-none"
         >
-          Pick another location
-        </button>
-      </header>
+          <Drawer.Handle className="mx-auto mt-3 h-1.5 w-12 shrink-0 cursor-pointer rounded-full bg-[#17211c]/25 hover:bg-[#17211c]/45" />
 
-      <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-10 sm:py-8">
-        {error ? <ErrorState message={error.message} /> : null}
-        {data ? <ReportBody report={data} /> : null}
-      </div>
-    </div>
+          <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[#17211c14] px-6 py-4 sm:px-10 sm:py-5">
+            <div>
+              <Drawer.Title className="m-0 font-mono text-xs font-bold tracking-normal text-[#5a6a60] uppercase">
+                Report
+              </Drawer.Title>
+            </div>
+            <button
+              className="shrink-0 border border-[#17211c] bg-[#17211c] px-4 py-2.5 font-mono text-[0.72rem] font-bold tracking-wider text-[#fffdf6] uppercase transition-colors hover:bg-[#24352b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17211c] sm:px-5 sm:py-3"
+              onClick={onClose}
+              type="button"
+            >
+              Pick another location
+            </button>
+          </header>
+
+          <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-10 sm:py-8">
+            {error ? <ErrorState message={error.message} /> : null}
+            {data ? <ReportBody report={data} /> : null}
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }
 

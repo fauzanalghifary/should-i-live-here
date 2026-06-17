@@ -2,21 +2,21 @@ package livability
 
 import "testing"
 
-func TestPreparePlacesIncludesBuildingHealthcareAndLabelsUnnamedHospitals(t *testing.T) {
+func TestPreparePlacesLabelsUnnamedHealthcarePlaces(t *testing.T) {
 	t.Parallel()
 
 	places := preparePlaces("healthcare", []Place{
 		{
 			Address:    "Jalan Siti Armilah, Majalengka Kulon 45400, West Java, Indonesia",
-			Categories: []string{"healthcare", "healthcare.hospital"},
+			Categories: []string{"hospital", "health", "point_of_interest"},
 		},
 		{
 			Name:       "puskesmas munjul",
 			Address:    "puskesmas munjul, Jalan Cendana, Munjul 45400, West Java, Indonesia",
-			Categories: []string{"building", "building.healthcare"},
+			Categories: []string{"medical_clinic", "health", "point_of_interest"},
 		},
 		{
-			Categories: []string{"building", "building.healthcare"},
+			Categories: []string{"medical_center", "health", "point_of_interest"},
 		},
 	})
 

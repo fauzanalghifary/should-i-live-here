@@ -59,11 +59,11 @@ type categoryQuery struct {
 }
 
 var categoryQueries = []categoryQuery{
-	{"essentials", "commercial.supermarket,commercial.convenience,commercial.marketplace", 10},
-	{"transport", "public_transport.bus,public_transport.train,public_transport.subway", 10},
-	{"healthcare", "healthcare,building.healthcare", 10},
-	{"education", "education.school,education.university,education.college", 10},
-	{"green_space", "leisure.park", 5},
+	{"essentials", "convenience_store,grocery_store,supermarket,market,discount_store,discount_supermarket,general_store,food_store", 10},
+	{"transport", "bus_station,train_station,subway_station,light_rail_station,transit_station,ferry_terminal", 10},
+	{"healthcare", "hospital,general_hospital,medical_clinic,medical_center,doctor,pharmacy,drugstore", 10},
+	{"education", "school,primary_school,secondary_school,university,preschool,educational_institution", 10},
+	{"green_space", "park,city_park,garden,playground,plaza", 5},
 }
 
 func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) {

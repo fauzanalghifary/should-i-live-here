@@ -9,17 +9,17 @@ func TestPreparePlacesExcludesOrdinaryBusStopsAndLabelsTransportPlaces(t *testin
 		{
 			Name:       "Jl. Imam Bonjol, Majalengka",
 			Address:    "Jalan Makmur, Majalengka",
-			Categories: []string{"public_transport", "public_transport.bus"},
+			Categories: []string{"bus_stop", "transit_station", "point_of_interest"},
 		},
 		{
 			Name:       "Terminal Cicaheum",
 			Address:    "Bandung",
-			Categories: []string{"public_transport", "public_transport.bus"},
+			Categories: []string{"bus_station", "transit_station", "point_of_interest"},
 		},
 		{
 			Name:       "Gambir",
 			Address:    "Jakarta",
-			Categories: []string{"public_transport", "public_transport.train"},
+			Categories: []string{"train_station", "transit_station", "point_of_interest"},
 		},
 	})
 

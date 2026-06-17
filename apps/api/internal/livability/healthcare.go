@@ -25,16 +25,19 @@ func labelHealthcarePlaces(places []Place) []Place {
 }
 
 func healthcareLabel(place Place) string {
-	if hasCategory(place, "healthcare.hospital") {
+	if hasCategory(place, "hospital") || hasCategory(place, "general_hospital") {
 		return "Hospital"
 	}
-	if hasCategory(place, "healthcare.clinic_or_praxis") {
+	if hasCategory(place, "medical_clinic") || hasCategory(place, "medical_center") {
 		return "Clinic"
 	}
-	if hasCategory(place, "healthcare.pharmacy") {
+	if hasCategory(place, "pharmacy") || hasCategory(place, "drugstore") {
 		return "Pharmacy"
 	}
-	if hasCategory(place, "building.healthcare") || hasCategory(place, "healthcare") {
+	if hasCategory(place, "doctor") {
+		return "Doctor"
+	}
+	if hasCategory(place, "health") {
 		return "Healthcare"
 	}
 

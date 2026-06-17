@@ -15,7 +15,7 @@ func filterTransportPlaces(places []Place) []Place {
 }
 
 func isOrdinaryBusStop(place Place) bool {
-	if !hasCategory(place, "public_transport.bus") {
+	if !hasCategory(place, "bus_stop") {
 		return false
 	}
 
@@ -62,27 +62,23 @@ func labelTransportPlaces(places []Place) []Place {
 func transportLabel(place Place) string {
 	for _, category := range place.Categories {
 		switch category {
-		case "public_transport.train":
+		case "train_station":
 			return "Train station"
-		case "public_transport.subway":
+		case "subway_station":
 			return "Subway station"
-		case "public_transport.light_rail":
+		case "light_rail_station":
 			return "Light rail station"
-		case "public_transport.tram":
+		case "tram_stop":
 			return "Tram stop"
-		case "public_transport.monorail":
-			return "Monorail station"
-		case "public_transport.ferry":
+		case "ferry_terminal":
 			return "Ferry terminal"
-		case "public_transport.aerialway":
-			return "Aerialway station"
-		case "public_transport.bus":
+		case "bus_station":
 			if isBusTerminal(place) {
 				return "Bus terminal"
 			}
-			return "Bus stop"
-		case "public_transport.platform":
-			return "Public transport platform"
+			return "Bus station"
+		case "transit_station":
+			return "Transit station"
 		}
 	}
 

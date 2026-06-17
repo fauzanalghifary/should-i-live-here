@@ -15,12 +15,12 @@ func main() {
 		port = "8080"
 	}
 
-	apiKey := os.Getenv("GEOAPIFY_API_KEY")
+	apiKey := os.Getenv("GOOGLE_PLACES_API_KEY")
 	if apiKey == "" {
-		log.Fatal("GEOAPIFY_API_KEY is required")
+		log.Fatal("GOOGLE_PLACES_API_KEY is required")
 	}
 
-	svc := livability.NewService(livability.NewGeoapifyClient(apiKey))
+	svc := livability.NewService(livability.NewGooglePlacesClient(apiKey))
 
 	addr := ":" + port
 	log.Printf("api listening on %s", addr)

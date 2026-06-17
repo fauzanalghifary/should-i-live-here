@@ -43,6 +43,7 @@ const SWEEP_DEG_PER_SECOND = 240;
 const CATEGORY_PLACES_SOURCE = "category-places";
 const CATEGORY_PLACES_LAYER = "category-places-circles";
 const CATEGORY_PLACES_LABEL = "category-places-labels";
+const SELECTED_LOCATION_ZOOM = 12;
 
 const mapStyle: StyleSpecification = {
   version: 8,
@@ -287,7 +288,6 @@ export function useLocationMap({
       renderSearchRadius(map, selectedLocation);
     }
 
-    const surroundingZoom = 12;
     const easeToLocation = selectedLocation;
     const easeRequestId = easeRequestIdRef.current + 1;
     easeRequestIdRef.current = easeRequestId;
@@ -303,7 +303,7 @@ export function useLocationMap({
     map.easeTo({
       center: lngLat,
       duration: 1500,
-      zoom: Math.max(map.getZoom(), surroundingZoom),
+      zoom: SELECTED_LOCATION_ZOOM,
     });
 
     return () => {

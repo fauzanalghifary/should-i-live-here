@@ -1,11 +1,11 @@
 import { Drawer } from "vaul";
 
-import type { LocationCoordinate } from "../location-map/types";
 import type { CategoryKey, LivabilityReport, Place } from "./types";
-import { useLivabilityReport } from "./useLivabilityReport";
 
 type ReportCardProps = {
-  location: LocationCoordinate;
+  report: LivabilityReport | undefined;
+  error: Error | null;
+  isLoading: boolean;
   onClose: () => void;
 };
 
@@ -27,9 +27,12 @@ const CATEGORY_ORDER: CategoryKey[] = [
 
 const PLACES_PER_CATEGORY = 3;
 
-export function ReportCard({ location, onClose }: ReportCardProps) {
-  const { data, error, isLoading } = useLivabilityReport(location);
-
+export function ReportCard({
+  error,
+  isLoading,
+  onClose,
+  report,
+}: ReportCardProps) {
   if (isLoading) {
     return null;
   }
@@ -68,7 +71,7 @@ export function ReportCard({ location, onClose }: ReportCardProps) {
 
           <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-10 sm:py-8">
             {error ? <ErrorState message={error.message} /> : null}
-            {data ? <ReportBody report={data} /> : null}
+            {report ? <ReportBody report={report} /> : null}
           </div>
         </Drawer.Content>
       </Drawer.Portal>

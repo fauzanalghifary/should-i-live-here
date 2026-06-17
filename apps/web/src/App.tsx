@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from "react";
 
 import type { LocationCoordinate } from "./location-map/types";
 import { ReportCard } from "./report/ReportCard";
+import { useLivabilityReport } from "./report/useLivabilityReport";
 import "./index.css";
 
 const LocationMap = lazy(async () => {
@@ -13,14 +14,28 @@ const LocationMap = lazy(async () => {
 export function App() {
   const [selectedLocation, setSelectedLocation] =
     useState<LocationCoordinate | null>(null);
+  const [queryLocation, setQueryLocation] = useState<LocationCoordinate | null>(
+    null,
+  );
   const [showIntro, setShowIntro] = useState(true);
+  const reportQuery = useLivabilityReport(queryLocation);
 
   const handleDismissIntro = () => {
     setShowIntro(false);
   };
 
+  const handleSelectLocation = (location: LocationCoordinate) => {
+    setQueryLocation(null);
+    setSelectedLocation(location);
+  };
+
   const handleCloseReport = () => {
     setSelectedLocation(null);
+    setQueryLocation(null);
+  };
+
+  const handleEaseEnd = (location: LocationCoordinate) => {
+    setQueryLocation(location);
   };
 
   return (
@@ -28,14 +43,21 @@ export function App() {
       <div className="absolute inset-0">
         <Suspense fallback={<MapLoadingState />}>
           <LocationMap
-            onLocationSelect={setSelectedLocation}
+            isFetchingReport={reportQuery.isLoading}
+            onEaseEnd={handleEaseEnd}
+            onLocationSelect={handleSelectLocation}
             selectedLocation={selectedLocation}
           />
         </Suspense>
       </div>
 
-      {selectedLocation !== null ? (
-        <ReportCard location={selectedLocation} onClose={handleCloseReport} />
+      {queryLocation !== null ? (
+        <ReportCard
+          error={reportQuery.error}
+          isLoading={reportQuery.isLoading}
+          onClose={handleCloseReport}
+          report={reportQuery.data}
+        />
       ) : null}
 
       {showIntro ? <IntroModal onDismiss={handleDismissIntro} /> : null}

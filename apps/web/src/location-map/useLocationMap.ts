@@ -19,17 +19,18 @@ import {
   createUnsupportedLocationPopupElement,
 } from "./mapElements";
 import type { LocationCoordinate } from "./types";
-import { useLivabilityReport } from "../report/useLivabilityReport";
 
 type UseLocationMapParams = {
   selectedLocation: LocationCoordinate | null;
+  isFetchingReport: boolean;
   onLocationSelect: (location: LocationCoordinate) => void;
+  onEaseEnd: (location: LocationCoordinate) => void;
 };
 
 const FILL_OPACITY_IDLE = 0.08;
 const LINE_OPACITY_IDLE = 0.5;
 
-const SEARCH_RADIUS_METERS = 1000;
+const SEARCH_RADIUS_METERS = 3000;
 const SEARCH_RADIUS_SOURCE = "search-radius";
 const SEARCH_RADIUS_FILL = "search-radius-fill";
 const SEARCH_RADIUS_LINE = "search-radius-line";
@@ -58,17 +59,31 @@ const mapStyle: StyleSpecification = {
 };
 
 export function useLocationMap({
+  isFetchingReport,
   selectedLocation,
   onLocationSelect,
+  onEaseEnd,
 }: UseLocationMapParams) {
-  const { isLoading: loading } = useLivabilityReport(selectedLocation);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
   const popupRef = useRef<Popup | null>(null);
   const indonesiaBoundaryRef = useRef<IndonesiaBoundary | null>(null);
   const styleReadyRef = useRef(false);
-  const selectedLocationRef = useRef<LocationCoordinate | null>(selectedLocation);
+  const selectedLocationRef = useRef<LocationCoordinate | null>(
+    selectedLocation,
+  );
+  const easeRequestIdRef = useRef(0);
+  const onLocationSelectRef = useRef(onLocationSelect);
+  const onEaseEndRef = useRef(onEaseEnd);
+
+  useEffect(() => {
+    onLocationSelectRef.current = onLocationSelect;
+  }, [onLocationSelect]);
+
+  useEffect(() => {
+    onEaseEndRef.current = onEaseEnd;
+  }, [onEaseEnd]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -174,7 +189,7 @@ export function useLocationMap({
       popupRef.current?.remove();
       popupRef.current = null;
 
-      onLocationSelect({
+      onLocationSelectRef.current({
         lat: event.lngLat.lat,
         lng: event.lngLat.lng,
       });
@@ -191,7 +206,7 @@ export function useLocationMap({
       styleReadyRef.current = false;
       map.remove();
     };
-  }, [onLocationSelect]);
+  }, []);
 
   useEffect(() => {
     selectedLocationRef.current = selectedLocation;
@@ -203,6 +218,7 @@ export function useLocationMap({
     }
 
     if (!selectedLocation) {
+      easeRequestIdRef.current += 1;
       markerRef.current?.remove();
       markerRef.current = null;
       if (styleReadyRef.current) {
@@ -231,16 +247,32 @@ export function useLocationMap({
       renderSearchRadius(map, selectedLocation);
     }
 
-    const surroundingZoom = 13;
+    const surroundingZoom = 12;
+    const easeToLocation = selectedLocation;
+    const easeRequestId = easeRequestIdRef.current + 1;
+    easeRequestIdRef.current = easeRequestId;
+
+    const handleMoveEnd = () => {
+      if (easeRequestIdRef.current !== easeRequestId) {
+        return;
+      }
+      onEaseEndRef.current(easeToLocation);
+    };
+
+    void map.once("moveend", handleMoveEnd);
     map.easeTo({
       center: lngLat,
-      duration: 2000,
+      duration: 1500,
       zoom: Math.max(map.getZoom(), surroundingZoom),
     });
+
+    return () => {
+      map.off("moveend", handleMoveEnd);
+    };
   }, [selectedLocation]);
 
   useEffect(() => {
-    if (!loading) {
+    if (!isFetchingReport) {
       return undefined;
     }
 
@@ -287,7 +319,7 @@ export function useLocationMap({
         }
       }
     };
-  }, [loading]);
+  }, [isFetchingReport]);
 
   return { containerRef };
 }

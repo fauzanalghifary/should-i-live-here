@@ -32,7 +32,7 @@ type UseLocationMapParams = {
 const FILL_OPACITY_IDLE = 0.08;
 const LINE_OPACITY_IDLE = 0.5;
 
-const SEARCH_RADIUS_METERS = 3000;
+const SEARCH_RADIUS_METERS = 2000;
 const SEARCH_RADIUS_SOURCE = "search-radius";
 const SEARCH_RADIUS_FILL = "search-radius-fill";
 const SEARCH_RADIUS_LINE = "search-radius-line";

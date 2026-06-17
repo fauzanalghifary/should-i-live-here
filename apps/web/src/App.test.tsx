@@ -74,7 +74,7 @@ describe("App", () => {
             healthcare: [],
             transport: [],
           },
-          radius_meters: 3000,
+          radius_meters: 2000,
           score: 0,
         }),
     });

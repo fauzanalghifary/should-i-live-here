@@ -49,7 +49,7 @@ type Service struct {
 }
 
 func NewService(fetcher Fetcher) *Service {
-	return &Service{fetcher: fetcher, radius: 3000}
+	return &Service{fetcher: fetcher, radius: 2000}
 }
 
 type categoryQuery struct {

@@ -43,8 +43,8 @@ func TestServiceReport(t *testing.T) {
 			fetcher:   &stubFetcher{places: makePlaces(3)},
 			wantCalls: int32(len(categoryQueries)),
 			check: func(t *testing.T, r Report) {
-				if r.RadiusMeters != 3000 {
-					t.Fatalf("expected radius 3000, got %d", r.RadiusMeters)
+				if r.RadiusMeters != 2000 {
+					t.Fatalf("expected radius 2000, got %d", r.RadiusMeters)
 				}
 				if r.Counts.Essentials != 3 || r.Counts.GreenSpace != 3 {
 					t.Fatalf("counts not populated: %+v", r.Counts)

@@ -4,8 +4,8 @@ type ReportCardProps = {
   report: LivabilityReport | undefined;
   error: Error | null;
   isLoading: boolean;
-  activeCategory: CategoryKey;
-  onActiveCategoryChange: (category: CategoryKey) => void;
+  activeCategory: CategoryKey | null;
+  onActiveCategoryChange: (category: CategoryKey | null) => void;
   onClose: () => void;
 };
 
@@ -76,18 +76,23 @@ export function ReportCard({
 
       {report ? (
         <div className="flex-1 overflow-y-auto">
-          {CATEGORY_ORDER.map((key) => (
-            <CategorySection
-              categoryKey={key}
-              count={report.counts[key]}
-              isExpanded={key === activeCategory}
-              key={key}
-              label={CATEGORY_LABELS[key]}
-              onToggle={onActiveCategoryChange}
-              places={report.places[key]}
-              radiusMeters={report.radius_meters}
-            />
-          ))}
+          {CATEGORY_ORDER.map((key) => {
+            const isExpanded = key === activeCategory;
+            return (
+              <CategorySection
+                categoryKey={key}
+                count={report.counts[key]}
+                isExpanded={isExpanded}
+                key={key}
+                label={CATEGORY_LABELS[key]}
+                onToggle={() => {
+                  onActiveCategoryChange(isExpanded ? null : key);
+                }}
+                places={report.places[key]}
+                radiusMeters={report.radius_meters}
+              />
+            );
+          })}
         </div>
       ) : null}
     </aside>
@@ -101,7 +106,7 @@ type CategorySectionProps = {
   isExpanded: boolean;
   places: Place[];
   radiusMeters: number;
-  onToggle: (category: CategoryKey) => void;
+  onToggle: () => void;
 };
 
 function CategorySection({
@@ -128,9 +133,7 @@ function CategorySection({
               ? "bg-[#17211c] text-[#fffdf6]"
               : "bg-[#fbf8ef] text-[#24352b] hover:bg-[#f0eadf]",
           ].join(" ")}
-          onClick={() => {
-            onToggle(categoryKey);
-          }}
+          onClick={onToggle}
           type="button"
         >
           <span className="font-mono text-[0.72rem] font-bold tracking-wider uppercase">

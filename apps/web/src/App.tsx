@@ -20,13 +20,17 @@ export function App() {
   const [queryLocation, setQueryLocation] = useState<LocationCoordinate | null>(
     null,
   );
-  const [activeCategory, setActiveCategory] =
-    useState<CategoryKey>(DEFAULT_CATEGORY);
+  const [activeCategory, setActiveCategory] = useState<CategoryKey | null>(
+    DEFAULT_CATEGORY,
+  );
   const [showIntro, setShowIntro] = useState(true);
   const reportQuery = useLivabilityReport(queryLocation);
 
   const mapPlaces = useMemo<Place[]>(() => {
-    return reportQuery.data?.places[activeCategory] ?? [];
+    if (!reportQuery.data || activeCategory === null) {
+      return [];
+    }
+    return reportQuery.data.places[activeCategory];
   }, [reportQuery.data, activeCategory]);
 
   const handleDismissIntro = () => {

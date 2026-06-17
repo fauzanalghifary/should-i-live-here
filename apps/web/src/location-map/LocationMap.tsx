@@ -21,11 +21,8 @@ export function LocationMap({
   });
 
   return (
-    <div className="relative min-h-80 overflow-hidden border-b border-[#17211c21] bg-[#d8e5d2] sm:min-h-[420px]">
-      <div className="h-full min-h-80 sm:min-h-[420px]" ref={containerRef} />
-      <div className="pointer-events-none absolute top-4 left-4 z-[1] border border-[#17211c21] bg-[#fffdf6]/90 px-3 py-2 font-mono text-[0.72rem] font-bold text-[#405047] uppercase backdrop-blur-sm">
-        Click anywhere to inspect
-      </div>
+    <div className="relative h-full w-full overflow-hidden bg-[#d8e5d2]">
+      <div className="h-full w-full" ref={containerRef} />
     </div>
   );
 }

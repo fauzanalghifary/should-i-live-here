@@ -164,7 +164,7 @@ export function useLocationMap({
     const surroundingZoom = 13;
     map.easeTo({
       center: lngLat,
-      duration: 800,
+      duration: 2000,
       zoom: Math.max(map.getZoom(), surroundingZoom),
     });
   }, [selectedLocation]);

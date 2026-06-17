@@ -1,0 +1,63 @@
+name: Backend CI
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/backend-ci.yml"
+      - "apps/api/**"
+      - "nx.json"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/backend-ci.yml"
+      - "apps/api/**"
+      - "nx.json"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      NX_DAEMON: false
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: apps/api/go.mod
+
+      - name: Check backend formatting
+        working-directory: apps/api
+        run: |
+          files=$(gofmt -l .)
+          test -z "$files" || (printf "%s\n" "$files"; exit 1)
+
+      - name: Lint backend
+        working-directory: apps/api
+        run: go vet ./...
+
+      - name: Test backend
+        working-directory: apps/api
+        run: go test ./...
+
+      - name: Build backend
+        working-directory: apps/api
+        run: go build -o ../../dist/apps/api/api ./cmd/api

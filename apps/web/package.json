@@ -9,6 +9,7 @@
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "prettier:check": "prettier --check \"*.{html,js,json,ts}\" \"src/**/*.{css,ts,tsx}\"",
     "prettier:fix": "prettier --write \"*.{html,js,json,ts}\" \"src/**/*.{css,ts,tsx}\""
   },
   "dependencies": {

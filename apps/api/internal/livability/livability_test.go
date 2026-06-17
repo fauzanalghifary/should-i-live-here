@@ -11,15 +11,19 @@ import (
 var errStubFetcher = errors.New("stub fetcher failure")
 
 type stubFetcher struct {
-	places []Place
-	err    error
-	calls  atomic.Int32
+	places             []Place
+	placesByCategories map[string][]Place
+	err                error
+	calls              atomic.Int32
 }
 
-func (s *stubFetcher) FindNearbyPlaces(_ context.Context, _, _ float64, _ int, _ string) ([]Place, error) {
+func (s *stubFetcher) FindNearbyPlaces(_ context.Context, _, _ float64, _ int, categories string) ([]Place, error) {
 	s.calls.Add(1)
 	if s.err != nil {
 		return nil, s.err
+	}
+	if s.placesByCategories != nil {
+		return s.placesByCategories[categories], nil
 	}
 	return s.places, nil
 }
@@ -59,6 +63,45 @@ func TestServiceReport(t *testing.T) {
 			check: func(t *testing.T, r Report) {
 				if r.Score != 100 {
 					t.Fatalf("expected score 100, got %d", r.Score)
+				}
+			},
+		},
+		{
+			name: "excludes ordinary bus stops and labels transport places by vehicle type",
+			fetcher: &stubFetcher{
+				placesByCategories: map[string][]Place{
+					"public_transport.bus,public_transport.train,public_transport.subway": {
+						{
+							Name:       "Jl. Imam Bonjol, Majalengka",
+							Address:    "Jalan Makmur, Majalengka",
+							Categories: []string{"public_transport", "public_transport.bus"},
+						},
+						{
+							Name:       "Terminal Cicaheum",
+							Address:    "Bandung",
+							Categories: []string{"public_transport", "public_transport.bus"},
+						},
+						{
+							Name:       "Gambir",
+							Address:    "Jakarta",
+							Categories: []string{"public_transport", "public_transport.train"},
+						},
+					},
+				},
+			},
+			check: func(t *testing.T, r Report) {
+				if r.Counts.Transport != 2 {
+					t.Fatalf("expected 2 transport places, got %d", r.Counts.Transport)
+				}
+
+				wantNames := []string{
+					"Bus terminal - Terminal Cicaheum",
+					"Train station - Gambir",
+				}
+				for i, wantName := range wantNames {
+					if r.Places.Transport[i].Name != wantName {
+						t.Fatalf("expected transport place %d to be %q, got %q", i, wantName, r.Places.Transport[i].Name)
+					}
 				}
 			},
 		},

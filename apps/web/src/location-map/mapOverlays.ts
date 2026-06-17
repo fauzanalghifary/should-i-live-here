@@ -109,7 +109,7 @@ export function addOverlayLayers(map: MapLibreMap) {
     source: SELECTED_PLACE_SOURCE,
     paint: {
       "circle-radius": 16,
-      "circle-color": "#1d4ed8",
+      "circle-color": "#216c2f",
       "circle-opacity": 0.18,
     },
   });
@@ -119,7 +119,7 @@ export function addOverlayLayers(map: MapLibreMap) {
     source: SELECTED_PLACE_SOURCE,
     paint: {
       "circle-radius": 9,
-      "circle-color": "#1d4ed8",
+      "circle-color": "#216c2f",
       "circle-stroke-color": "#fffdf6",
       "circle-stroke-width": 3,
     },

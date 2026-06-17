@@ -126,24 +126,40 @@ function PlaceRow({ index, isSelected, onSelect, place }: PlaceRowProps) {
   }, [isSelected]);
 
   return (
-    <li className="m-0">
+    <li className="relative m-0">
+      {isSelected ? (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 w-1 bg-[#216c2f]"
+        />
+      ) : null}
       <button
         aria-expanded={isSelected}
         className={[
           "flex w-full items-baseline gap-3 px-6 py-2.5 text-left transition-colors",
-          isSelected ? "bg-[#eef4df]" : "hover:bg-[#f6f3ea]",
+          isSelected ? "bg-[#eef4df] font-medium" : "hover:bg-[#f6f3ea]",
         ].join(" ")}
         onClick={onSelect}
         ref={buttonRef}
         type="button"
       >
-        <span className="w-5 shrink-0 font-mono text-[0.75rem] text-[#5a6a60]">
+        <span
+          className={[
+            "w-5 shrink-0 font-mono text-[0.75rem]",
+            isSelected ? "text-[#216c2f]" : "text-[#5a6a60]",
+          ].join(" ")}
+        >
           {index + 1}
         </span>
         <span className="flex-1 truncate text-[0.92rem] text-[#24352b]">
           {place.name ?? "Unnamed"}
         </span>
-        <span className="shrink-0 font-mono text-[0.7rem] text-[#5a6a60]">
+        <span
+          className={[
+            "shrink-0 font-mono text-[0.7rem]",
+            isSelected ? "text-[#216c2f]" : "text-[#5a6a60]",
+          ].join(" ")}
+        >
           {formatWalk(place.distance_meters)}
         </span>
       </button>

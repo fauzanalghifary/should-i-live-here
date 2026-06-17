@@ -168,9 +168,7 @@ export function useLocationMap({
           return;
         }
 
-        if (
-          !isPointInIndonesia(event.lngLat.lng, event.lngLat.lat, boundary)
-        ) {
+        if (!isPointInIndonesia(event.lngLat.lng, event.lngLat.lat, boundary)) {
           showUnsupportedPopup(map, event.lngLat.lng, event.lngLat.lat);
           return;
         }
@@ -210,11 +208,7 @@ export function useLocationMap({
         .addTo(target);
     };
 
-    const showRepickPopup = (
-      target: MapLibreMap,
-      lng: number,
-      lat: number,
-    ) => {
+    const showRepickPopup = (target: MapLibreMap, lng: number, lat: number) => {
       popupRef.current?.remove();
       const dismiss = () => {
         popupRef.current?.remove();

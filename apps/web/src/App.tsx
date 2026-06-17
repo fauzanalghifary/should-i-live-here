@@ -23,6 +23,7 @@ export function App() {
   const [activeCategory, setActiveCategory] = useState<CategoryKey | null>(
     DEFAULT_CATEGORY,
   );
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [showIntro, setShowIntro] = useState(true);
   const reportQuery = useLivabilityReport(queryLocation);
 
@@ -41,16 +42,23 @@ export function App() {
     setQueryLocation(null);
     setSelectedLocation(location);
     setActiveCategory(DEFAULT_CATEGORY);
+    setSelectedPlace(null);
   };
 
   const handleCloseReport = () => {
     setSelectedLocation(null);
     setQueryLocation(null);
     setActiveCategory(DEFAULT_CATEGORY);
+    setSelectedPlace(null);
   };
 
   const handleEaseEnd = (location: LocationCoordinate) => {
     setQueryLocation(location);
+  };
+
+  const handleActiveCategoryChange = (category: CategoryKey | null) => {
+    setActiveCategory(category);
+    setSelectedPlace(null);
   };
 
   return (
@@ -63,6 +71,7 @@ export function App() {
             onEaseEnd={handleEaseEnd}
             onLocationSelect={handleSelectLocation}
             selectedLocation={selectedLocation}
+            selectedPlace={selectedPlace}
           />
         </Suspense>
       </div>
@@ -72,9 +81,11 @@ export function App() {
           activeCategory={activeCategory}
           error={reportQuery.error}
           isLoading={reportQuery.isLoading}
-          onActiveCategoryChange={setActiveCategory}
+          onActiveCategoryChange={handleActiveCategoryChange}
           onClose={handleCloseReport}
+          onPlaceSelect={setSelectedPlace}
           report={reportQuery.data}
+          selectedPlace={selectedPlace}
         />
       ) : null}
 

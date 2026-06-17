@@ -25,6 +25,7 @@ type UseLocationMapParams = {
   selectedLocation: LocationCoordinate | null;
   isFetchingReport: boolean;
   categoryPlaces: Place[];
+  selectedPlace: Place | null;
   onLocationSelect: (location: LocationCoordinate) => void;
   onEaseEnd: (location: LocationCoordinate) => void;
 };
@@ -43,6 +44,9 @@ const SWEEP_DEG_PER_SECOND = 240;
 const CATEGORY_PLACES_SOURCE = "category-places";
 const CATEGORY_PLACES_LAYER = "category-places-circles";
 const CATEGORY_PLACES_LABEL = "category-places-labels";
+const SELECTED_PLACE_SOURCE = "selected-place";
+const SELECTED_PLACE_HALO = "selected-place-halo";
+const SELECTED_PLACE_FILL = "selected-place-fill";
 const SELECTED_LOCATION_ZOOM = 12;
 
 const mapStyle: StyleSpecification = {
@@ -68,6 +72,7 @@ export function useLocationMap({
   isFetchingReport,
   selectedLocation,
   categoryPlaces,
+  selectedPlace,
   onLocationSelect,
   onEaseEnd,
 }: UseLocationMapParams) {
@@ -189,6 +194,31 @@ export function useLocationMap({
           "text-color": "#17211c",
           "text-halo-color": "#fffdf6",
           "text-halo-width": 1.5,
+        },
+      });
+      map.addSource(SELECTED_PLACE_SOURCE, {
+        type: "geojson",
+        data: emptyFeatureCollection(),
+      });
+      map.addLayer({
+        id: SELECTED_PLACE_HALO,
+        type: "circle",
+        source: SELECTED_PLACE_SOURCE,
+        paint: {
+          "circle-radius": 16,
+          "circle-color": "#1d4ed8",
+          "circle-opacity": 0.18,
+        },
+      });
+      map.addLayer({
+        id: SELECTED_PLACE_FILL,
+        type: "circle",
+        source: SELECTED_PLACE_SOURCE,
+        paint: {
+          "circle-radius": 9,
+          "circle-color": "#1d4ed8",
+          "circle-stroke-color": "#fffdf6",
+          "circle-stroke-width": 3,
         },
       });
 
@@ -321,6 +351,22 @@ export function useLocationMap({
   }, [categoryPlaces]);
 
   useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleReadyRef.current) {
+      return;
+    }
+    renderSelectedPlace(map, selectedPlace);
+
+    if (selectedPlace) {
+      map.easeTo({
+        center: [selectedPlace.lng, selectedPlace.lat],
+        duration: 600,
+        padding: { right: 420, top: 0, bottom: 0, left: 0 },
+      });
+    }
+  }, [selectedPlace]);
+
+  useEffect(() => {
     if (!isFetchingReport) {
       return undefined;
     }
@@ -404,6 +450,27 @@ function renderCategoryPlaces(map: MapLibreMap, places: Place[]) {
         geometry: { type: "Point", coordinates: [place.lng, place.lat] },
       }),
     ),
+  });
+}
+
+function renderSelectedPlace(map: MapLibreMap, place: Place | null) {
+  const source = map.getSource(SELECTED_PLACE_SOURCE);
+  if (!(source instanceof maplibregl.GeoJSONSource)) {
+    return;
+  }
+  if (!place) {
+    source.setData(emptyFeatureCollection());
+    return;
+  }
+  source.setData({
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: { name: place.name ?? "" },
+        geometry: { type: "Point", coordinates: [place.lng, place.lat] },
+      },
+    ],
   });
 }
 

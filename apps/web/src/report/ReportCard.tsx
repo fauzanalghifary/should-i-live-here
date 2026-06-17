@@ -5,7 +5,9 @@ type ReportCardProps = {
   error: Error | null;
   isLoading: boolean;
   activeCategory: CategoryKey | null;
+  selectedPlace: Place | null;
   onActiveCategoryChange: (category: CategoryKey | null) => void;
+  onPlaceSelect: (place: Place | null) => void;
   onClose: () => void;
 };
 
@@ -31,7 +33,9 @@ export function ReportCard({
   isLoading,
   onActiveCategoryChange,
   onClose,
+  onPlaceSelect,
   report,
+  selectedPlace,
 }: ReportCardProps) {
   if (isLoading) {
     return null;
@@ -85,11 +89,13 @@ export function ReportCard({
                 isExpanded={isExpanded}
                 key={key}
                 label={CATEGORY_LABELS[key]}
+                onPlaceSelect={onPlaceSelect}
                 onToggle={() => {
                   onActiveCategoryChange(isExpanded ? null : key);
                 }}
                 places={report.places[key]}
                 radiusMeters={report.radius_meters}
+                selectedPlace={selectedPlace}
               />
             );
           })}
@@ -106,7 +112,9 @@ type CategorySectionProps = {
   isExpanded: boolean;
   places: Place[];
   radiusMeters: number;
+  selectedPlace: Place | null;
   onToggle: () => void;
+  onPlaceSelect: (place: Place | null) => void;
 };
 
 function CategorySection({
@@ -114,9 +122,11 @@ function CategorySection({
   count,
   isExpanded,
   label,
+  onPlaceSelect,
   onToggle,
   places,
   radiusMeters,
+  selectedPlace,
 }: CategorySectionProps) {
   const sortedPlaces = sortByDistance(places);
   const sectionId = `report-section-${categoryKey}`;
@@ -157,27 +167,69 @@ function CategorySection({
             </p>
           ) : (
             <ol className="m-0 list-none p-0">
-              {sortedPlaces.map((place, index) => (
-                <li
-                  className="flex items-baseline gap-3 px-6 py-2.5"
-                  key={index}
-                >
-                  <span className="w-5 shrink-0 font-mono text-[0.75rem] text-[#5a6a60]">
-                    {index + 1}
-                  </span>
-                  <span className="flex-1 truncate text-[0.92rem] text-[#24352b]">
-                    {place.name ?? "Unnamed"}
-                  </span>
-                  <span className="shrink-0 font-mono text-[0.7rem] text-[#5a6a60]">
-                    {formatWalk(place.distance_meters)}
-                  </span>
-                </li>
-              ))}
+              {sortedPlaces.map((place, index) => {
+                const isSelected = selectedPlace === place;
+                return (
+                  <li className="m-0" key={index}>
+                    <button
+                      aria-expanded={isSelected}
+                      className={[
+                        "flex w-full items-baseline gap-3 px-6 py-2.5 text-left transition-colors",
+                        isSelected
+                          ? "bg-[#eef4df]"
+                          : "hover:bg-[#f6f3ea]",
+                      ].join(" ")}
+                      onClick={() => {
+                        onPlaceSelect(isSelected ? null : place);
+                      }}
+                      type="button"
+                    >
+                      <span className="w-5 shrink-0 font-mono text-[0.75rem] text-[#5a6a60]">
+                        {index + 1}
+                      </span>
+                      <span className="flex-1 truncate text-[0.92rem] text-[#24352b]">
+                        {place.name ?? "Unnamed"}
+                      </span>
+                      <span className="shrink-0 font-mono text-[0.7rem] text-[#5a6a60]">
+                        {formatWalk(place.distance_meters)}
+                      </span>
+                    </button>
+                    {isSelected ? <PlaceDetails place={place} /> : null}
+                  </li>
+                );
+              })}
             </ol>
           )}
         </div>
       ) : null}
     </section>
+  );
+}
+
+function PlaceDetails({ place }: { place: Place }) {
+  return (
+    <div className="border-y border-[#17211c14] bg-[#fbf8ef] px-6 py-3">
+      {place.address ? (
+        <p className="m-0 text-[0.82rem] leading-snug text-[#405047]">
+          {place.address}
+        </p>
+      ) : null}
+      <p className="m-0 mt-2 font-mono text-[0.7rem] font-bold text-[#24352b] uppercase">
+        {formatWalk(place.distance_meters)} · {place.distance_meters}m
+      </p>
+      {place.categories && place.categories.length > 0 ? (
+        <ul className="mt-2 flex list-none flex-wrap gap-1 p-0">
+          {place.categories.slice(0, 4).map((category) => (
+            <li
+              className="border border-[#17211c1f] bg-[#fffdf6] px-2 py-0.5 font-mono text-[0.66rem] text-[#24352b]"
+              key={category}
+            >
+              {category}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 

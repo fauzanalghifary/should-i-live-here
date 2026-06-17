@@ -9,6 +9,7 @@ type LocationMapProps = {
   selectedLocation: LocationCoordinate | null;
   isFetchingReport: boolean;
   categoryPlaces: Place[];
+  selectedPlace: Place | null;
   onLocationSelect: (location: LocationCoordinate) => void;
   onEaseEnd: (location: LocationCoordinate) => void;
 };
@@ -19,6 +20,7 @@ export function LocationMap({
   isFetchingReport,
   selectedLocation,
   categoryPlaces,
+  selectedPlace,
   onLocationSelect,
   onEaseEnd,
 }: LocationMapProps) {
@@ -28,6 +30,7 @@ export function LocationMap({
     onEaseEnd,
     onLocationSelect,
     selectedLocation,
+    selectedPlace,
   });
 
   return (

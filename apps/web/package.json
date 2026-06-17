@@ -21,6 +21,7 @@
     "@tailwindcss/vite": "^4.3.1",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
+    "@types/geojson": "^7946.0.16",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",

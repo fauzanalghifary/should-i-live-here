@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 
-import type { LocationCoordinate } from "./LocationMap";
+import type { LocationCoordinate } from "./location-map/types";
 import "./index.css";
 
 const signals = [
@@ -11,7 +11,7 @@ const signals = [
 ] as const;
 
 const LocationMap = lazy(async () => {
-  const module = await import("./LocationMap");
+  const module = await import("./location-map/LocationMap");
 
   return { default: module.LocationMap };
 });

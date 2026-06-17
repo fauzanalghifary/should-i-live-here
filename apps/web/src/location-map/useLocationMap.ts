@@ -4,23 +4,25 @@ import type {
   Map as MapLibreMap,
   MapMouseEvent,
   Marker,
+  Popup,
   StyleSpecification,
 } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
 
-export type LocationCoordinate = {
-  lat: number;
-  lng: number;
-};
+import {
+  indonesiaViewBounds,
+  isPointInIndonesia,
+  loadIndonesiaBoundary,
+  type IndonesiaBoundary,
+} from "./indonesiaBoundary";
+import {
+  createSelectedMarkerElement,
+  createUnsupportedLocationPopupElement,
+} from "./mapElements";
+import type { LocationCoordinate } from "./types";
 
-type LocationMapProps = {
+type UseLocationMapParams = {
   selectedLocation: LocationCoordinate | null;
   onLocationSelect: (location: LocationCoordinate) => void;
-};
-
-const defaultCenter: LocationCoordinate = {
-  lat: -6.2088,
-  lng: 106.8456,
 };
 
 const mapStyle: StyleSpecification = {
@@ -42,13 +44,15 @@ const mapStyle: StyleSpecification = {
   ],
 };
 
-export function LocationMap({
+export function useLocationMap({
   selectedLocation,
   onLocationSelect,
-}: LocationMapProps) {
+}: UseLocationMapParams) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
+  const popupRef = useRef<Popup | null>(null);
+  const indonesiaBoundaryRef = useRef<IndonesiaBoundary | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -59,10 +63,14 @@ export function LocationMap({
 
     const map = new maplibregl.Map({
       attributionControl: false,
-      center: [defaultCenter.lng, defaultCenter.lat],
+      bounds: indonesiaViewBounds,
       container,
+      fitBoundsOptions: {
+        padding: 24,
+      },
+      minZoom: 3,
+      renderWorldCopies: false,
       style: mapStyle,
-      zoom: 13,
     });
 
     map.addControl(
@@ -71,7 +79,41 @@ export function LocationMap({
     );
     map.addControl(new maplibregl.AttributionControl({ compact: true }));
 
+    map.on("load", () => {
+      void loadIndonesiaBoundary().then((boundary) => {
+        indonesiaBoundaryRef.current = boundary;
+      });
+    });
+
     map.on("click", (event: MapMouseEvent) => {
+      const boundary = indonesiaBoundaryRef.current;
+
+      if (!boundary) {
+        return;
+      }
+
+      if (!isPointInIndonesia(event.lngLat.lng, event.lngLat.lat, boundary)) {
+        popupRef.current?.remove();
+        popupRef.current = new maplibregl.Popup({
+          className: "location-map-popup",
+          closeButton: false,
+          closeOnClick: true,
+          offset: 16,
+        })
+          .setLngLat(event.lngLat)
+          .setDOMContent(
+            createUnsupportedLocationPopupElement(
+              event.lngLat.lng,
+              event.lngLat.lat,
+            ),
+          )
+          .addTo(map);
+        return;
+      }
+
+      popupRef.current?.remove();
+      popupRef.current = null;
+
       onLocationSelect({
         lat: event.lngLat.lat,
         lng: event.lngLat.lng,
@@ -81,6 +123,8 @@ export function LocationMap({
     mapRef.current = map;
 
     return () => {
+      popupRef.current?.remove();
+      popupRef.current = null;
       markerRef.current?.remove();
       markerRef.current = null;
       mapRef.current = null;
@@ -123,24 +167,5 @@ export function LocationMap({
     });
   }, [selectedLocation]);
 
-  return (
-    <div className="relative min-h-80 overflow-hidden border-b border-[#17211c21] bg-[#d8e5d2] sm:min-h-[420px]">
-      <div className="h-full min-h-80 sm:min-h-[420px]" ref={containerRef} />
-      <div className="pointer-events-none absolute top-4 left-4 z-[1] border border-[#17211c21] bg-[#fffdf6]/90 px-3 py-2 font-mono text-[0.72rem] font-bold text-[#405047] uppercase backdrop-blur-sm">
-        Click anywhere to inspect
-      </div>
-    </div>
-  );
-}
-
-function createSelectedMarkerElement() {
-  const element = document.createElement("div");
-  element.style.width = "22px";
-  element.style.height = "22px";
-  element.style.border = "3px solid #fffdf6";
-  element.style.borderRadius = "999px";
-  element.style.background = "#f05d3b";
-  element.style.boxShadow = "0 0 0 3px rgba(240, 93, 59, 0.2)";
-
-  return element;
+  return { containerRef };
 }

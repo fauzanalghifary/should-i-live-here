@@ -1,14 +1,14 @@
 import { render, screen } from "@testing-library/react";
 
 import { App } from "./App";
-import type { LocationCoordinate } from "./LocationMap";
+import type { LocationCoordinate } from "./location-map/types";
 
 type MockLocationMapProps = {
   selectedLocation: LocationCoordinate | null;
   onLocationSelect: (location: LocationCoordinate) => void;
 };
 
-vi.mock("./LocationMap", () => ({
+vi.mock("./location-map/LocationMap", () => ({
   LocationMap({ onLocationSelect }: MockLocationMapProps) {
     return (
       <button

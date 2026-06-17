@@ -67,7 +67,7 @@ export function CategorySection({
           ) : (
             <ol className="m-0 list-none p-0">
               {sortedPlaces.map((place, index) => {
-                const isSelected = selectedPlace === place;
+                const isSelected = selectedPlace?.id === place.id;
                 return (
                   <PlaceRow
                     index={index}

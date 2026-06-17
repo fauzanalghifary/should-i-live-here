@@ -67,6 +67,41 @@ func TestServiceReport(t *testing.T) {
 			},
 		},
 		{
+			name: "deduplicates nearby places with the same name",
+			fetcher: &stubFetcher{
+				placesByCategories: map[string][]Place{
+					"commercial.supermarket,commercial.convenience,commercial.marketplace": {
+						{
+							Name:           "Alun-alun Majalengka",
+							DistanceMeters: 1106,
+							Lat:            -6.836,
+							Lng:            108.228,
+						},
+						{
+							Name:           " Alun-alun   Majalengka ",
+							DistanceMeters: 1104,
+							Lat:            -6.83601,
+							Lng:            108.22801,
+						},
+						{
+							Name:           "Pasar Majalengka",
+							DistanceMeters: 1300,
+							Lat:            -6.84,
+							Lng:            108.23,
+						},
+					},
+				},
+			},
+			check: func(t *testing.T, r Report) {
+				if r.Counts.Essentials != 2 {
+					t.Fatalf("expected 2 essential places after dedupe, got %d", r.Counts.Essentials)
+				}
+				if r.Places.Essentials[0].DistanceMeters != 1104 {
+					t.Fatalf("expected duplicate to keep nearer place, got %+v", r.Places.Essentials[0])
+				}
+			},
+		},
+		{
 			name: "excludes ordinary bus stops and labels transport places by vehicle type",
 			fetcher: &stubFetcher{
 				placesByCategories: map[string][]Place{

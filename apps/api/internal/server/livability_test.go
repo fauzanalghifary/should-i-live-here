@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/fauzanalghifary/should-i-live-here/apps/api/internal/livability"
@@ -90,7 +91,11 @@ func TestLivabilityHandler(t *testing.T) {
 func makePlaces(count int) []livability.Place {
 	places := make([]livability.Place, 0, count)
 	for i := 0; i < count; i++ {
-		places = append(places, livability.Place{Name: "Place"})
+		places = append(places, livability.Place{
+			Name: "Place " + strconv.Itoa(i+1),
+			Lat:  -6.2 + float64(i)*0.001,
+			Lng:  106.8 + float64(i)*0.001,
+		})
 	}
 	return places
 }

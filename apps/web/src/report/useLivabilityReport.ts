@@ -5,7 +5,7 @@ import type { LivabilityReport } from "./types";
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
-  "http://localhost:8080";
+  (import.meta.env.DEV ? "http://localhost:8080" : "/api");
 
 async function fetchLivabilityReport(
   lat: number,

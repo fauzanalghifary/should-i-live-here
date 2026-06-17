@@ -48,7 +48,7 @@ type UseLocationMapParams = {
 const SELECTED_LOCATION_ZOOM = 12;
 const SELECTED_LOCATION_EASE_MS = 1500;
 const SELECTED_PLACE_EASE_MS = 600;
-const SIDEBAR_PADDING_RIGHT = 420;
+const SIDEBAR_PADDING_RIGHT = 480;
 
 export function useLocationMap({
   isFetchingReport,

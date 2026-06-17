@@ -45,7 +45,7 @@ export function ReportCard({
   return (
     <aside
       aria-label="Neighborhood report"
-      className="report-sidebar-in absolute top-0 right-0 z-20 flex h-full w-[420px] max-w-full flex-col border-l border-[#17211c21] bg-[#fffdf6] text-[#17211c] shadow-[-18px_0_50px_-20px_rgba(23,33,28,0.35)]"
+      className="report-sidebar-in absolute top-0 right-0 z-20 flex h-full w-[480px] max-w-full flex-col border-l border-[#17211c21] bg-[#fffdf6] text-[#17211c] shadow-[-18px_0_50px_-20px_rgba(23,33,28,0.35)]"
     >
       <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[#17211c14] px-6 py-5">
         <div>
@@ -63,7 +63,7 @@ export function ReportCard({
           onClick={onClose}
           type="button"
         >
-          Pick another
+          Reset selection
         </button>
       </header>
 

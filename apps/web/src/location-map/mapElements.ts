@@ -24,7 +24,7 @@ export function createRepickPopupElement(
   const root = document.createElement("div");
 
   const text = document.createElement("p");
-  text.textContent = "Clear the current report?";
+  text.textContent = "Reset selection?";
   text.style.margin = "0 0 8px 0";
   text.style.fontWeight = "600";
 
@@ -32,7 +32,7 @@ export function createRepickPopupElement(
   actions.style.display = "grid";
   actions.style.gap = "6px";
 
-  const confirm = createPopupButton("Yes, clear", "primary", onConfirm);
+  const confirm = createPopupButton("Yes, reset", "primary", onConfirm);
   const cancel = createPopupButton("Cancel", "ghost", onCancel);
 
   actions.append(confirm, cancel);

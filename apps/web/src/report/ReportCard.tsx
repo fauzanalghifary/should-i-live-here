@@ -224,7 +224,7 @@ function PlaceDetails({ place }: { place: Place }) {
               className="border border-[#17211c1f] bg-[#fffdf6] px-2 py-0.5 font-mono text-[0.66rem] text-[#24352b]"
               key={category}
             >
-              {category}
+              {formatCategoryTag(category)}
             </li>
           ))}
         </ul>
@@ -270,4 +270,8 @@ function sortByDistance(places: Place[]): Place[] {
 function formatWalk(meters: number): string {
   const minutes = Math.max(1, Math.round(meters / 80));
   return `${minutes.toString()} min walk`;
+}
+
+function formatCategoryTag(category: string): string {
+  return category.replace(/[._]/g, " ");
 }

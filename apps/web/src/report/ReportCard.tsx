@@ -25,8 +25,6 @@ const CATEGORY_ORDER: CategoryKey[] = [
   "green_space",
 ];
 
-const PLACES_PER_CATEGORY = 5;
-
 export function ReportCard({
   activeCategory,
   error,
@@ -115,7 +113,7 @@ function CategorySection({
   places,
   radiusMeters,
 }: CategorySectionProps) {
-  const top = sortByDistance(places).slice(0, PLACES_PER_CATEGORY);
+  const sortedPlaces = sortByDistance(places);
   const sectionId = `report-section-${categoryKey}`;
 
   return (
@@ -150,13 +148,13 @@ function CategorySection({
       </h3>
       {isExpanded ? (
         <div id={sectionId}>
-          {top.length === 0 ? (
+          {sortedPlaces.length === 0 ? (
             <p className="m-0 px-6 py-3 text-[0.85rem] text-[#5a6a60]">
               None within {radiusMeters}m.
             </p>
           ) : (
             <ol className="m-0 list-none p-0">
-              {top.map((place, index) => (
+              {sortedPlaces.map((place, index) => (
                 <li
                   className="flex items-baseline gap-3 px-6 py-2.5"
                   key={index}

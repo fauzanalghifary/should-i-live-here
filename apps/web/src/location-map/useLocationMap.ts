@@ -19,6 +19,7 @@ import {
 } from "./mapElements";
 import { mapStyle } from "./mapStyle";
 import {
+  CATEGORY_PLACES_LAYER,
   SWEEP_DEG_PER_SECOND,
   addOverlayLayers,
   clearSearchSweep,
@@ -37,6 +38,7 @@ type UseLocationMapParams = {
   selectedPlace: Place | null;
   onLocationSelect: (location: LocationCoordinate) => void;
   onEaseEnd: (location: LocationCoordinate) => void;
+  onMapPlaceClick: (placeId: string) => void;
 };
 
 const SELECTED_LOCATION_ZOOM = 12;
@@ -51,6 +53,7 @@ export function useLocationMap({
   selectedPlace,
   onLocationSelect,
   onEaseEnd,
+  onMapPlaceClick,
 }: UseLocationMapParams) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -64,6 +67,7 @@ export function useLocationMap({
   const easeRequestIdRef = useRef(0);
   const onLocationSelectRef = useRef(onLocationSelect);
   const onEaseEndRef = useRef(onEaseEnd);
+  const onMapPlaceClickRef = useRef(onMapPlaceClick);
   const categoryPlacesRef = useRef<Place[]>(categoryPlaces);
 
   useEffect(() => {
@@ -73,6 +77,10 @@ export function useLocationMap({
   useEffect(() => {
     onEaseEndRef.current = onEaseEnd;
   }, [onEaseEnd]);
+
+  useEffect(() => {
+    onMapPlaceClickRef.current = onMapPlaceClick;
+  }, [onMapPlaceClick]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -109,6 +117,26 @@ export function useLocationMap({
       styleReadyRef.current = true;
       renderSearchRadius(map, selectedLocationRef.current);
       renderCategoryPlaces(map, categoryPlacesRef.current);
+    });
+
+    map.on("click", CATEGORY_PLACES_LAYER, (event) => {
+      const feature = event.features?.[0];
+      if (!feature) {
+        return;
+      }
+      const properties = feature.properties as { id?: unknown };
+      const id = properties.id;
+      if (typeof id === "string" && id !== "") {
+        onMapPlaceClickRef.current(id);
+      }
+    });
+
+    map.on("mouseenter", CATEGORY_PLACES_LAYER, () => {
+      map.getCanvas().style.cursor = "pointer";
+    });
+
+    map.on("mouseleave", CATEGORY_PLACES_LAYER, () => {
+      map.getCanvas().style.cursor = "";
     });
 
     map.on("click", (event: MapMouseEvent) => {

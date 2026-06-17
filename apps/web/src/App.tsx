@@ -61,6 +61,18 @@ export function App() {
     setSelectedPlace(null);
   };
 
+  const handleMapPlaceClick = (placeId: string) => {
+    if (!reportQuery.data || activeCategory === null) {
+      return;
+    }
+    const place = reportQuery.data.places[activeCategory].find(
+      (candidate) => candidate.id === placeId,
+    );
+    if (place) {
+      setSelectedPlace(place);
+    }
+  };
+
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-[#f4f1e8] text-[#17211c]">
       <div className="absolute inset-0">
@@ -70,6 +82,7 @@ export function App() {
             isFetchingReport={reportQuery.isLoading}
             onEaseEnd={handleEaseEnd}
             onLocationSelect={handleSelectLocation}
+            onMapPlaceClick={handleMapPlaceClick}
             selectedLocation={selectedLocation}
             selectedPlace={selectedPlace}
           />

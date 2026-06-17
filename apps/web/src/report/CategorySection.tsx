@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import { formatWalk, sortByDistance } from "./formatters";
 import { PlaceDetails } from "./PlaceDetails";
 import type { CategoryKey, Place } from "./types";
@@ -67,30 +69,15 @@ export function CategorySection({
               {sortedPlaces.map((place, index) => {
                 const isSelected = selectedPlace === place;
                 return (
-                  <li className="m-0" key={index}>
-                    <button
-                      aria-expanded={isSelected}
-                      className={[
-                        "flex w-full items-baseline gap-3 px-6 py-2.5 text-left transition-colors",
-                        isSelected ? "bg-[#eef4df]" : "hover:bg-[#f6f3ea]",
-                      ].join(" ")}
-                      onClick={() => {
-                        onPlaceSelect(isSelected ? null : place);
-                      }}
-                      type="button"
-                    >
-                      <span className="w-5 shrink-0 font-mono text-[0.75rem] text-[#5a6a60]">
-                        {index + 1}
-                      </span>
-                      <span className="flex-1 truncate text-[0.92rem] text-[#24352b]">
-                        {place.name ?? "Unnamed"}
-                      </span>
-                      <span className="shrink-0 font-mono text-[0.7rem] text-[#5a6a60]">
-                        {formatWalk(place.distance_meters)}
-                      </span>
-                    </button>
-                    {isSelected ? <PlaceDetails place={place} /> : null}
-                  </li>
+                  <PlaceRow
+                    index={index}
+                    isSelected={isSelected}
+                    key={index}
+                    onSelect={() => {
+                      onPlaceSelect(isSelected ? null : place);
+                    }}
+                    place={place}
+                  />
                 );
               })}
             </ol>
@@ -99,6 +86,82 @@ export function CategorySection({
       ) : null}
     </section>
   );
+}
+
+type PlaceRowProps = {
+  index: number;
+  isSelected: boolean;
+  onSelect: () => void;
+  place: Place;
+};
+
+function PlaceRow({ index, isSelected, onSelect, place }: PlaceRowProps) {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!isSelected) {
+      return undefined;
+    }
+    const handle = window.requestAnimationFrame(() => {
+      const button = buttonRef.current;
+      if (!button) {
+        return;
+      }
+      const container = findScrollContainer(button);
+      if (!container) {
+        return;
+      }
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = button.getBoundingClientRect();
+      const containerCenter = containerRect.top + containerRect.height / 2;
+      const buttonCenter = buttonRect.top + buttonRect.height / 2;
+      container.scrollBy({
+        top: buttonCenter - containerCenter,
+        behavior: "smooth",
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(handle);
+    };
+  }, [isSelected]);
+
+  return (
+    <li className="m-0">
+      <button
+        aria-expanded={isSelected}
+        className={[
+          "flex w-full items-baseline gap-3 px-6 py-2.5 text-left transition-colors",
+          isSelected ? "bg-[#eef4df]" : "hover:bg-[#f6f3ea]",
+        ].join(" ")}
+        onClick={onSelect}
+        ref={buttonRef}
+        type="button"
+      >
+        <span className="w-5 shrink-0 font-mono text-[0.75rem] text-[#5a6a60]">
+          {index + 1}
+        </span>
+        <span className="flex-1 truncate text-[0.92rem] text-[#24352b]">
+          {place.name ?? "Unnamed"}
+        </span>
+        <span className="shrink-0 font-mono text-[0.7rem] text-[#5a6a60]">
+          {formatWalk(place.distance_meters)}
+        </span>
+      </button>
+      {isSelected ? <PlaceDetails place={place} /> : null}
+    </li>
+  );
+}
+
+function findScrollContainer(el: HTMLElement): HTMLElement | null {
+  let current: HTMLElement | null = el.parentElement;
+  while (current) {
+    const style = window.getComputedStyle(current);
+    if (style.overflowY === "auto" || style.overflowY === "scroll") {
+      return current;
+    }
+    current = current.parentElement;
+  }
+  return null;
 }
 
 function Chevron({ expanded }: { expanded: boolean }) {

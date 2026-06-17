@@ -21,7 +21,7 @@ const SEARCH_RADIUS_LINE = "search-radius-line";
 const SEARCH_SWEEP_SOURCE = "search-sweep";
 const SEARCH_SWEEP_FILL = "search-sweep-fill";
 const CATEGORY_PLACES_SOURCE = "category-places";
-const CATEGORY_PLACES_LAYER = "category-places-circles";
+export const CATEGORY_PLACES_LAYER = "category-places-circles";
 const CATEGORY_PLACES_LABEL = "category-places-labels";
 const SELECTED_PLACE_SOURCE = "selected-place";
 const SELECTED_PLACE_HALO = "selected-place-halo";
@@ -182,7 +182,7 @@ export function renderCategoryPlaces(map: MapLibreMap, places: Place[]) {
     features: places.map(
       (place): GeoJSON.Feature<GeoJSON.Point> => ({
         type: "Feature",
-        properties: { name: place.name ?? "" },
+        properties: { name: place.name ?? "", id: place.id ?? "" },
         geometry: { type: "Point", coordinates: [place.lng, place.lat] },
       }),
     ),

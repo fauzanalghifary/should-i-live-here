@@ -12,6 +12,7 @@ type LocationMapProps = {
   selectedPlace: Place | null;
   onLocationSelect: (location: LocationCoordinate) => void;
   onEaseEnd: (location: LocationCoordinate) => void;
+  onMapPlaceClick: (placeId: string) => void;
 };
 
 export type { LocationCoordinate } from "./types";
@@ -23,12 +24,14 @@ export function LocationMap({
   selectedPlace,
   onLocationSelect,
   onEaseEnd,
+  onMapPlaceClick,
 }: LocationMapProps) {
   const { containerRef } = useLocationMap({
     categoryPlaces,
     isFetchingReport,
     onEaseEnd,
     onLocationSelect,
+    onMapPlaceClick,
     selectedLocation,
     selectedPlace,
   });

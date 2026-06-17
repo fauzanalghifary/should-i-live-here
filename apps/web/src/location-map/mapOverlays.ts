@@ -154,7 +154,13 @@ export function renderSearchSweep(
     return;
   }
   source.setData(
-    sweepPolygon(lng, lat, SEARCH_RADIUS_METERS, startBearingDeg, SWEEP_SPAN_DEG),
+    sweepPolygon(
+      lng,
+      lat,
+      SEARCH_RADIUS_METERS,
+      startBearingDeg,
+      SWEEP_SPAN_DEG,
+    ),
   );
 }
 

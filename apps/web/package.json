@@ -12,6 +12,7 @@
     "prettier:fix": "prettier --write \"*.{html,js,json,ts}\" \"src/**/*.{css,ts,tsx}\""
   },
   "dependencies": {
+    "maplibre-gl": "^5.24.0",
     "react": "latest",
     "react-dom": "latest"
   },

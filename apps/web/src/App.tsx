@@ -1,9 +1,12 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 
 import type { LocationCoordinate } from "./location-map/types";
 import { ReportCard } from "./report/ReportCard";
+import type { CategoryKey, Place } from "./report/types";
 import { useLivabilityReport } from "./report/useLivabilityReport";
 import "./index.css";
+
+const DEFAULT_CATEGORY: CategoryKey = "essentials";
 
 const LocationMap = lazy(async () => {
   const module = await import("./location-map/LocationMap");
@@ -17,8 +20,14 @@ export function App() {
   const [queryLocation, setQueryLocation] = useState<LocationCoordinate | null>(
     null,
   );
+  const [activeCategory, setActiveCategory] =
+    useState<CategoryKey>(DEFAULT_CATEGORY);
   const [showIntro, setShowIntro] = useState(true);
   const reportQuery = useLivabilityReport(queryLocation);
+
+  const mapPlaces = useMemo<Place[]>(() => {
+    return reportQuery.data?.places[activeCategory] ?? [];
+  }, [reportQuery.data, activeCategory]);
 
   const handleDismissIntro = () => {
     setShowIntro(false);
@@ -27,11 +36,13 @@ export function App() {
   const handleSelectLocation = (location: LocationCoordinate) => {
     setQueryLocation(null);
     setSelectedLocation(location);
+    setActiveCategory(DEFAULT_CATEGORY);
   };
 
   const handleCloseReport = () => {
     setSelectedLocation(null);
     setQueryLocation(null);
+    setActiveCategory(DEFAULT_CATEGORY);
   };
 
   const handleEaseEnd = (location: LocationCoordinate) => {
@@ -43,6 +54,7 @@ export function App() {
       <div className="absolute inset-0">
         <Suspense fallback={<MapLoadingState />}>
           <LocationMap
+            categoryPlaces={mapPlaces}
             isFetchingReport={reportQuery.isLoading}
             onEaseEnd={handleEaseEnd}
             onLocationSelect={handleSelectLocation}
@@ -53,8 +65,10 @@ export function App() {
 
       {queryLocation !== null ? (
         <ReportCard
+          activeCategory={activeCategory}
           error={reportQuery.error}
           isLoading={reportQuery.isLoading}
+          onActiveCategoryChange={setActiveCategory}
           onClose={handleCloseReport}
           report={reportQuery.data}
         />

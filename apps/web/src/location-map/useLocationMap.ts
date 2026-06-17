@@ -19,10 +19,12 @@ import {
   createUnsupportedLocationPopupElement,
 } from "./mapElements";
 import type { LocationCoordinate } from "./types";
+import type { Place } from "../report/types";
 
 type UseLocationMapParams = {
   selectedLocation: LocationCoordinate | null;
   isFetchingReport: boolean;
+  categoryPlaces: Place[];
   onLocationSelect: (location: LocationCoordinate) => void;
   onEaseEnd: (location: LocationCoordinate) => void;
 };
@@ -38,6 +40,9 @@ const SEARCH_SWEEP_SOURCE = "search-sweep";
 const SEARCH_SWEEP_FILL = "search-sweep-fill";
 const SWEEP_SPAN_DEG = 50;
 const SWEEP_DEG_PER_SECOND = 240;
+const CATEGORY_PLACES_SOURCE = "category-places";
+const CATEGORY_PLACES_LAYER = "category-places-circles";
+const CATEGORY_PLACES_LABEL = "category-places-labels";
 
 const mapStyle: StyleSpecification = {
   version: 8,
@@ -61,6 +66,7 @@ const mapStyle: StyleSpecification = {
 export function useLocationMap({
   isFetchingReport,
   selectedLocation,
+  categoryPlaces,
   onLocationSelect,
   onEaseEnd,
 }: UseLocationMapParams) {
@@ -76,6 +82,7 @@ export function useLocationMap({
   const easeRequestIdRef = useRef(0);
   const onLocationSelectRef = useRef(onLocationSelect);
   const onEaseEndRef = useRef(onEaseEnd);
+  const categoryPlacesRef = useRef<Place[]>(categoryPlaces);
 
   useEffect(() => {
     onLocationSelectRef.current = onLocationSelect;
@@ -151,9 +158,42 @@ export function useLocationMap({
           "fill-opacity": 0.22,
         },
       });
+      map.addSource(CATEGORY_PLACES_SOURCE, {
+        type: "geojson",
+        data: emptyFeatureCollection(),
+      });
+      map.addLayer({
+        id: CATEGORY_PLACES_LAYER,
+        type: "circle",
+        source: CATEGORY_PLACES_SOURCE,
+        paint: {
+          "circle-radius": 7,
+          "circle-color": "#fffdf6",
+          "circle-stroke-color": "#17211c",
+          "circle-stroke-width": 2,
+        },
+      });
+      map.addLayer({
+        id: CATEGORY_PLACES_LABEL,
+        type: "symbol",
+        source: CATEGORY_PLACES_SOURCE,
+        layout: {
+          "text-field": ["get", "name"],
+          "text-size": 11,
+          "text-offset": [0, 1.3],
+          "text-anchor": "top",
+          "text-optional": true,
+        },
+        paint: {
+          "text-color": "#17211c",
+          "text-halo-color": "#fffdf6",
+          "text-halo-width": 1.5,
+        },
+      });
 
       styleReadyRef.current = true;
       renderSearchRadius(map, selectedLocationRef.current);
+      renderCategoryPlaces(map, categoryPlacesRef.current);
     });
 
     map.on("click", (event: MapMouseEvent) => {
@@ -272,6 +312,15 @@ export function useLocationMap({
   }, [selectedLocation]);
 
   useEffect(() => {
+    categoryPlacesRef.current = categoryPlaces;
+    const map = mapRef.current;
+    if (!map || !styleReadyRef.current) {
+      return;
+    }
+    renderCategoryPlaces(map, categoryPlaces);
+  }, [categoryPlaces]);
+
+  useEffect(() => {
     if (!isFetchingReport) {
       return undefined;
     }
@@ -339,6 +388,23 @@ function renderSearchRadius(
   source.setData(
     circlePolygon(location.lng, location.lat, SEARCH_RADIUS_METERS),
   );
+}
+
+function renderCategoryPlaces(map: MapLibreMap, places: Place[]) {
+  const source = map.getSource(CATEGORY_PLACES_SOURCE);
+  if (!(source instanceof maplibregl.GeoJSONSource)) {
+    return;
+  }
+  source.setData({
+    type: "FeatureCollection",
+    features: places.map(
+      (place): GeoJSON.Feature<GeoJSON.Point> => ({
+        type: "Feature",
+        properties: { name: place.name ?? "" },
+        geometry: { type: "Point", coordinates: [place.lng, place.lat] },
+      }),
+    ),
+  });
 }
 
 function emptyFeatureCollection(): GeoJSON.FeatureCollection {

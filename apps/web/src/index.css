@@ -26,3 +26,17 @@ select {
 button:not(:disabled) {
   cursor: pointer;
 }
+
+@keyframes report-sidebar-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.report-sidebar-in {
+  animation: report-sidebar-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform;
+}

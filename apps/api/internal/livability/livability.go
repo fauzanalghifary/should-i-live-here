@@ -2,6 +2,7 @@ package livability
 
 import (
 	"context"
+	"strings"
 	"sync"
 )
 
@@ -60,10 +61,21 @@ type categoryQuery struct {
 
 var categoryQueries = []categoryQuery{
 	{"essentials", "commercial.supermarket,commercial.convenience,commercial.marketplace", 10},
-	{"transport", "public_transport", 10},
+	{"transport", "public_transport.bus,public_transport.train,public_transport.subway", 10},
 	{"healthcare", "healthcare.hospital,healthcare.clinic_or_praxis,healthcare.pharmacy", 10},
 	{"education", "education.school,education.university,education.college", 10},
 	{"green_space", "leisure.park", 5},
+}
+
+func filterNamed(places []Place) []Place {
+	named := make([]Place, 0, len(places))
+	for _, place := range places {
+		if strings.TrimSpace(place.Name) == "" {
+			continue
+		}
+		named = append(named, place)
+	}
+	return named
 }
 
 func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) {
@@ -94,8 +106,9 @@ func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) 
 		if r.err != nil {
 			return Report{}, r.err
 		}
-		counts[r.name] = len(r.places)
-		places[r.name] = r.places
+		named := filterNamed(r.places)
+		counts[r.name] = len(named)
+		places[r.name] = named
 	}
 
 	var totalScore float64

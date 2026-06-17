@@ -5,7 +5,6 @@ import type {
   MapMouseEvent,
   Marker,
   Popup,
-  StyleSpecification,
 } from "maplibre-gl";
 
 import {
@@ -18,6 +17,16 @@ import {
   createSelectedMarkerElement,
   createUnsupportedLocationPopupElement,
 } from "./mapElements";
+import { mapStyle } from "./mapStyle";
+import {
+  SWEEP_DEG_PER_SECOND,
+  addOverlayLayers,
+  clearSearchSweep,
+  renderCategoryPlaces,
+  renderSearchRadius,
+  renderSearchSweep,
+  renderSelectedPlace,
+} from "./mapOverlays";
 import type { LocationCoordinate } from "./types";
 import type { Place } from "../report/types";
 
@@ -30,43 +39,10 @@ type UseLocationMapParams = {
   onEaseEnd: (location: LocationCoordinate) => void;
 };
 
-const FILL_OPACITY_IDLE = 0.08;
-const LINE_OPACITY_IDLE = 0.5;
-
-const SEARCH_RADIUS_METERS = 2000;
-const SEARCH_RADIUS_SOURCE = "search-radius";
-const SEARCH_RADIUS_FILL = "search-radius-fill";
-const SEARCH_RADIUS_LINE = "search-radius-line";
-const SEARCH_SWEEP_SOURCE = "search-sweep";
-const SEARCH_SWEEP_FILL = "search-sweep-fill";
-const SWEEP_SPAN_DEG = 50;
-const SWEEP_DEG_PER_SECOND = 240;
-const CATEGORY_PLACES_SOURCE = "category-places";
-const CATEGORY_PLACES_LAYER = "category-places-circles";
-const CATEGORY_PLACES_LABEL = "category-places-labels";
-const SELECTED_PLACE_SOURCE = "selected-place";
-const SELECTED_PLACE_HALO = "selected-place-halo";
-const SELECTED_PLACE_FILL = "selected-place-fill";
 const SELECTED_LOCATION_ZOOM = 12;
-
-const mapStyle: StyleSpecification = {
-  version: 8,
-  sources: {
-    "osm-raster-tiles": {
-      type: "raster",
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-      tileSize: 256,
-      attribution: "© OpenStreetMap contributors",
-    },
-  },
-  layers: [
-    {
-      id: "osm-raster-tiles",
-      type: "raster",
-      source: "osm-raster-tiles",
-    },
-  ],
-};
+const SELECTED_LOCATION_EASE_MS = 1500;
+const SELECTED_PLACE_EASE_MS = 600;
+const SIDEBAR_PADDING_RIGHT = 420;
 
 export function useLocationMap({
   isFetchingReport,
@@ -128,99 +104,7 @@ export function useLocationMap({
         indonesiaBoundaryRef.current = boundary;
       });
 
-      map.addSource(SEARCH_RADIUS_SOURCE, {
-        type: "geojson",
-        data: emptyFeatureCollection(),
-      });
-      map.addLayer({
-        id: SEARCH_RADIUS_FILL,
-        type: "fill",
-        source: SEARCH_RADIUS_SOURCE,
-        paint: {
-          "fill-color": "#17211c",
-          "fill-opacity": FILL_OPACITY_IDLE,
-        },
-      });
-      map.addLayer({
-        id: SEARCH_RADIUS_LINE,
-        type: "line",
-        source: SEARCH_RADIUS_SOURCE,
-        paint: {
-          "line-color": "#17211c",
-          "line-width": 2,
-          "line-opacity": LINE_OPACITY_IDLE,
-        },
-      });
-      map.addSource(SEARCH_SWEEP_SOURCE, {
-        type: "geojson",
-        data: emptyFeatureCollection(),
-      });
-      map.addLayer({
-        id: SEARCH_SWEEP_FILL,
-        type: "fill",
-        source: SEARCH_SWEEP_SOURCE,
-        paint: {
-          "fill-color": "#17211c",
-          "fill-opacity": 0.22,
-        },
-      });
-      map.addSource(CATEGORY_PLACES_SOURCE, {
-        type: "geojson",
-        data: emptyFeatureCollection(),
-      });
-      map.addLayer({
-        id: CATEGORY_PLACES_LAYER,
-        type: "circle",
-        source: CATEGORY_PLACES_SOURCE,
-        paint: {
-          "circle-radius": 7,
-          "circle-color": "#fffdf6",
-          "circle-stroke-color": "#17211c",
-          "circle-stroke-width": 2,
-        },
-      });
-      map.addLayer({
-        id: CATEGORY_PLACES_LABEL,
-        type: "symbol",
-        source: CATEGORY_PLACES_SOURCE,
-        layout: {
-          "text-field": ["get", "name"],
-          "text-size": 11,
-          "text-offset": [0, 1.3],
-          "text-anchor": "top",
-          "text-optional": true,
-        },
-        paint: {
-          "text-color": "#17211c",
-          "text-halo-color": "#fffdf6",
-          "text-halo-width": 1.5,
-        },
-      });
-      map.addSource(SELECTED_PLACE_SOURCE, {
-        type: "geojson",
-        data: emptyFeatureCollection(),
-      });
-      map.addLayer({
-        id: SELECTED_PLACE_HALO,
-        type: "circle",
-        source: SELECTED_PLACE_SOURCE,
-        paint: {
-          "circle-radius": 16,
-          "circle-color": "#1d4ed8",
-          "circle-opacity": 0.18,
-        },
-      });
-      map.addLayer({
-        id: SELECTED_PLACE_FILL,
-        type: "circle",
-        source: SELECTED_PLACE_SOURCE,
-        paint: {
-          "circle-radius": 9,
-          "circle-color": "#1d4ed8",
-          "circle-stroke-color": "#fffdf6",
-          "circle-stroke-width": 3,
-        },
-      });
+      addOverlayLayers(map);
 
       styleReadyRef.current = true;
       renderSearchRadius(map, selectedLocationRef.current);
@@ -332,7 +216,7 @@ export function useLocationMap({
     void map.once("moveend", handleMoveEnd);
     map.easeTo({
       center: lngLat,
-      duration: 1500,
+      duration: SELECTED_LOCATION_EASE_MS,
       zoom: SELECTED_LOCATION_ZOOM,
     });
 
@@ -360,8 +244,13 @@ export function useLocationMap({
     if (selectedPlace) {
       map.easeTo({
         center: [selectedPlace.lng, selectedPlace.lat],
-        duration: 600,
-        padding: { right: 420, top: 0, bottom: 0, left: 0 },
+        duration: SELECTED_PLACE_EASE_MS,
+        padding: {
+          right: SIDEBAR_PADDING_RIGHT,
+          top: 0,
+          bottom: 0,
+          left: 0,
+        },
       });
     }
   }, [selectedPlace]);
@@ -382,20 +271,9 @@ export function useLocationMap({
       const map = mapRef.current;
       const location = selectedLocationRef.current;
       if (map && styleReadyRef.current && location) {
-        const source = map.getSource(SEARCH_SWEEP_SOURCE);
-        if (source instanceof maplibregl.GeoJSONSource) {
-          const elapsedSec = (now - start) / 1000;
-          const bearing = (elapsedSec * SWEEP_DEG_PER_SECOND) % 360;
-          source.setData(
-            sweepPolygon(
-              location.lng,
-              location.lat,
-              SEARCH_RADIUS_METERS,
-              bearing,
-              SWEEP_SPAN_DEG,
-            ),
-          );
-        }
+        const elapsedSec = (now - start) / 1000;
+        const bearing = (elapsedSec * SWEEP_DEG_PER_SECOND) % 360;
+        renderSearchSweep(map, location.lng, location.lat, bearing);
       }
       frameId = requestAnimationFrame(tick);
     };
@@ -408,138 +286,10 @@ export function useLocationMap({
       }
       const map = mapRef.current;
       if (map && styleReadyRef.current) {
-        const source = map.getSource(SEARCH_SWEEP_SOURCE);
-        if (source instanceof maplibregl.GeoJSONSource) {
-          source.setData(emptyFeatureCollection());
-        }
+        clearSearchSweep(map);
       }
     };
   }, [isFetchingReport]);
 
   return { containerRef };
-}
-
-function renderSearchRadius(
-  map: MapLibreMap,
-  location: LocationCoordinate | null,
-) {
-  const source = map.getSource(SEARCH_RADIUS_SOURCE);
-  if (!(source instanceof maplibregl.GeoJSONSource)) {
-    return;
-  }
-  if (!location) {
-    source.setData(emptyFeatureCollection());
-    return;
-  }
-  source.setData(
-    circlePolygon(location.lng, location.lat, SEARCH_RADIUS_METERS),
-  );
-}
-
-function renderCategoryPlaces(map: MapLibreMap, places: Place[]) {
-  const source = map.getSource(CATEGORY_PLACES_SOURCE);
-  if (!(source instanceof maplibregl.GeoJSONSource)) {
-    return;
-  }
-  source.setData({
-    type: "FeatureCollection",
-    features: places.map(
-      (place): GeoJSON.Feature<GeoJSON.Point> => ({
-        type: "Feature",
-        properties: { name: place.name ?? "" },
-        geometry: { type: "Point", coordinates: [place.lng, place.lat] },
-      }),
-    ),
-  });
-}
-
-function renderSelectedPlace(map: MapLibreMap, place: Place | null) {
-  const source = map.getSource(SELECTED_PLACE_SOURCE);
-  if (!(source instanceof maplibregl.GeoJSONSource)) {
-    return;
-  }
-  if (!place) {
-    source.setData(emptyFeatureCollection());
-    return;
-  }
-  source.setData({
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        properties: { name: place.name ?? "" },
-        geometry: { type: "Point", coordinates: [place.lng, place.lat] },
-      },
-    ],
-  });
-}
-
-function emptyFeatureCollection(): GeoJSON.FeatureCollection {
-  return { type: "FeatureCollection", features: [] };
-}
-
-function sweepPolygon(
-  lng: number,
-  lat: number,
-  radiusMeters: number,
-  startBearingDeg: number,
-  spanDeg: number,
-  steps = 16,
-): GeoJSON.Feature<GeoJSON.Polygon> {
-  const coords: GeoJSON.Position[] = [[lng, lat]];
-  for (let i = 0; i <= steps; i++) {
-    const bearing = startBearingDeg + (spanDeg * i) / steps;
-    coords.push(lngLatAtBearing(lng, lat, radiusMeters, bearing));
-  }
-  coords.push([lng, lat]);
-  return {
-    type: "Feature",
-    properties: {},
-    geometry: { type: "Polygon", coordinates: [coords] },
-  };
-}
-
-function circlePolygon(
-  lng: number,
-  lat: number,
-  radiusMeters: number,
-  points = 64,
-): GeoJSON.Feature<GeoJSON.Polygon> {
-  const coords: GeoJSON.Position[] = [];
-  for (let i = 0; i < points; i++) {
-    coords.push(lngLatAtBearing(lng, lat, radiusMeters, (i / points) * 360));
-  }
-  const first = coords[0];
-  if (first) {
-    coords.push(first);
-  }
-  return {
-    type: "Feature",
-    properties: {},
-    geometry: { type: "Polygon", coordinates: [coords] },
-  };
-}
-
-function lngLatAtBearing(
-  lng: number,
-  lat: number,
-  meters: number,
-  bearingDeg: number,
-): GeoJSON.Position {
-  const earthRadius = 6378137;
-  const delta = meters / earthRadius;
-  const theta = (bearingDeg * Math.PI) / 180;
-  const phi1 = (lat * Math.PI) / 180;
-  const lambda1 = (lng * Math.PI) / 180;
-  const phi2 = Math.asin(
-    Math.sin(phi1) * Math.cos(delta) +
-      Math.cos(phi1) * Math.sin(delta) * Math.cos(theta),
-  );
-  const lambda2 =
-    lambda1 +
-    Math.atan2(
-      Math.sin(theta) * Math.sin(delta) * Math.cos(phi1),
-      Math.cos(delta) - Math.sin(phi1) * Math.sin(phi2),
-    );
-  return [(lambda2 * 180) / Math.PI, (phi2 * 180) / Math.PI];
 }

@@ -36,7 +36,65 @@ button:not(:disabled) {
   }
 }
 
-.report-sidebar-in {
+.report-panel {
   animation: report-sidebar-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: transform;
+}
+
+.report-sheet-handle {
+  display: none;
+}
+
+@keyframes report-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .report-panel {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--report-sheet-height, 54svh);
+    max-height: calc(100svh - 0.75rem);
+    border-top: 1px solid #17211c21;
+    border-right: 0;
+    border-left: 0;
+    box-shadow: 0 -18px 50px -24px rgba(23, 33, 28, 0.42);
+    animation-name: report-sheet-in;
+    transition: height 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .report-sheet-handle {
+    display: flex;
+    min-height: 1.75rem;
+    width: 100%;
+    flex-shrink: 0;
+    touch-action: none;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-bottom: 1px solid #17211c14;
+    background: #fffdf6;
+    padding: 0.45rem 0 0.4rem;
+  }
+
+  .report-sheet-handle span {
+    display: block;
+    width: 2.75rem;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: #5a6a604d;
+  }
+
+  .report-sheet-handle:hover span,
+  .report-sheet-handle:focus-visible span {
+    background: #24352b99;
+  }
 }

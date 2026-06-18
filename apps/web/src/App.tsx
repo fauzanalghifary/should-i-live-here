@@ -8,8 +8,6 @@ import "./index.css";
 
 const DEFAULT_CATEGORY: CategoryKey = "food_cafe";
 
-type PlaceSelectionSource = "map" | "report";
-
 const LocationMap = lazy(async () => {
   const module = await import("./location-map/LocationMap");
 
@@ -26,8 +24,8 @@ export function App() {
     DEFAULT_CATEGORY,
   );
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
-  const [placeSelectionSource, setPlaceSelectionSource] =
-    useState<PlaceSelectionSource>("report");
+  const [shouldCenterSelectedPlace, setShouldCenterSelectedPlace] =
+    useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const reportQuery = useLivabilityReport(queryLocation);
 
@@ -47,7 +45,7 @@ export function App() {
     setSelectedLocation(location);
     setActiveCategory(DEFAULT_CATEGORY);
     setSelectedPlace(null);
-    setPlaceSelectionSource("report");
+    setShouldCenterSelectedPlace(false);
   };
 
   const handleCloseReport = () => {
@@ -55,7 +53,7 @@ export function App() {
     setQueryLocation(null);
     setActiveCategory(DEFAULT_CATEGORY);
     setSelectedPlace(null);
-    setPlaceSelectionSource("report");
+    setShouldCenterSelectedPlace(false);
   };
 
   const handleEaseEnd = (location: LocationCoordinate) => {
@@ -65,7 +63,7 @@ export function App() {
   const handleActiveCategoryChange = (category: CategoryKey | null) => {
     setActiveCategory(category);
     setSelectedPlace(null);
-    setPlaceSelectionSource("report");
+    setShouldCenterSelectedPlace(false);
   };
 
   const handleMapPlaceClick = (placeId: string) => {
@@ -76,13 +74,13 @@ export function App() {
       (candidate) => candidate.id === placeId,
     );
     if (place) {
-      setPlaceSelectionSource("map");
+      setShouldCenterSelectedPlace(selectedPlace === null);
       setSelectedPlace(place);
     }
   };
 
   const handleReportPlaceSelect = (place: Place | null) => {
-    setPlaceSelectionSource("report");
+    setShouldCenterSelectedPlace(false);
     setSelectedPlace(place);
   };
 
@@ -97,7 +95,7 @@ export function App() {
             onEaseEnd={handleEaseEnd}
             onLocationSelect={handleSelectLocation}
             onMapPlaceClick={handleMapPlaceClick}
-            shouldCenterSelectedPlace={placeSelectionSource === "map"}
+            shouldCenterSelectedPlace={shouldCenterSelectedPlace}
             selectedLocation={selectedLocation}
             selectedPlace={selectedPlace}
           />

@@ -10,6 +10,7 @@ type LocationMapProps = {
   isFetchingReport: boolean;
   categoryPlaces: Place[];
   selectedPlace: Place | null;
+  shouldCenterSelectedPlace: boolean;
   onLocationSelect: (location: LocationCoordinate) => void;
   onEaseEnd: (location: LocationCoordinate) => void;
   onMapPlaceClick: (placeId: string) => void;
@@ -23,6 +24,7 @@ export function LocationMap({
   selectedLocation,
   categoryPlaces,
   selectedPlace,
+  shouldCenterSelectedPlace,
   onLocationSelect,
   onEaseEnd,
   onMapPlaceClick,
@@ -37,6 +39,7 @@ export function LocationMap({
     onMapPlaceClick,
     selectedLocation,
     selectedPlace,
+    shouldCenterSelectedPlace,
   });
 
   return (

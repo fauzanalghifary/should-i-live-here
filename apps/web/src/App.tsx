@@ -8,6 +8,8 @@ import "./index.css";
 
 const DEFAULT_CATEGORY: CategoryKey = "food_cafe";
 
+type PlaceSelectionSource = "map" | "report";
+
 const LocationMap = lazy(async () => {
   const module = await import("./location-map/LocationMap");
 
@@ -24,6 +26,8 @@ export function App() {
     DEFAULT_CATEGORY,
   );
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [placeSelectionSource, setPlaceSelectionSource] =
+    useState<PlaceSelectionSource>("report");
   const [showIntro, setShowIntro] = useState(true);
   const reportQuery = useLivabilityReport(queryLocation);
 
@@ -43,6 +47,7 @@ export function App() {
     setSelectedLocation(location);
     setActiveCategory(DEFAULT_CATEGORY);
     setSelectedPlace(null);
+    setPlaceSelectionSource("report");
   };
 
   const handleCloseReport = () => {
@@ -50,6 +55,7 @@ export function App() {
     setQueryLocation(null);
     setActiveCategory(DEFAULT_CATEGORY);
     setSelectedPlace(null);
+    setPlaceSelectionSource("report");
   };
 
   const handleEaseEnd = (location: LocationCoordinate) => {
@@ -59,6 +65,7 @@ export function App() {
   const handleActiveCategoryChange = (category: CategoryKey | null) => {
     setActiveCategory(category);
     setSelectedPlace(null);
+    setPlaceSelectionSource("report");
   };
 
   const handleMapPlaceClick = (placeId: string) => {
@@ -69,8 +76,14 @@ export function App() {
       (candidate) => candidate.id === placeId,
     );
     if (place) {
+      setPlaceSelectionSource("map");
       setSelectedPlace(place);
     }
+  };
+
+  const handleReportPlaceSelect = (place: Place | null) => {
+    setPlaceSelectionSource("report");
+    setSelectedPlace(place);
   };
 
   return (
@@ -84,6 +97,7 @@ export function App() {
             onEaseEnd={handleEaseEnd}
             onLocationSelect={handleSelectLocation}
             onMapPlaceClick={handleMapPlaceClick}
+            shouldCenterSelectedPlace={placeSelectionSource === "map"}
             selectedLocation={selectedLocation}
             selectedPlace={selectedPlace}
           />
@@ -97,7 +111,7 @@ export function App() {
           isLoading={reportQuery.isLoading}
           onActiveCategoryChange={handleActiveCategoryChange}
           onClose={handleCloseReport}
-          onPlaceSelect={setSelectedPlace}
+          onPlaceSelect={handleReportPlaceSelect}
           report={reportQuery.data}
           selectedPlace={selectedPlace}
         />

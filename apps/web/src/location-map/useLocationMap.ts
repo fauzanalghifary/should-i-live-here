@@ -39,6 +39,7 @@ type UseLocationMapParams = {
   isFetchingReport: boolean;
   categoryPlaces: Place[];
   selectedPlace: Place | null;
+  shouldCenterSelectedPlace: boolean;
   onLocationSelect: (location: LocationCoordinate) => void;
   onEaseEnd: (location: LocationCoordinate) => void;
   onMapPlaceClick: (placeId: string) => void;
@@ -55,6 +56,7 @@ export function useLocationMap({
   selectedLocation,
   categoryPlaces,
   selectedPlace,
+  shouldCenterSelectedPlace,
   onLocationSelect,
   onEaseEnd,
   onMapPlaceClick,
@@ -321,7 +323,7 @@ export function useLocationMap({
     }
     renderSelectedPlace(map, selectedPlace);
 
-    if (selectedPlace) {
+    if (selectedPlace && shouldCenterSelectedPlace) {
       map.easeTo({
         center: [selectedPlace.lng, selectedPlace.lat],
         duration: SELECTED_PLACE_EASE_MS,
@@ -333,7 +335,7 @@ export function useLocationMap({
         },
       });
     }
-  }, [selectedPlace]);
+  }, [selectedPlace, shouldCenterSelectedPlace]);
 
   useEffect(() => {
     if (!isFetchingReport) {

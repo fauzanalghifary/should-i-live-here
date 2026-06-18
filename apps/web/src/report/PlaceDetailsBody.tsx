@@ -4,6 +4,7 @@ import {
   formatCategoryTag,
   formatPriceLevel,
   formatWebsite,
+  googleMapsUrl,
 } from "./formatters";
 import { PhotoLightbox } from "./PhotoLightbox";
 import type { Place, PlaceDetails as PlaceDetailsData } from "./types";
@@ -78,7 +79,7 @@ export function PlaceDetailsBody({ details, place }: PlaceDetailsBodyProps) {
         </details>
       ) : null}
 
-      <ContactLinks details={details} />
+      <ContactLinks details={details} place={place} />
 
       <CategoryTagsLine categories={place.categories} />
     </div>
@@ -129,12 +130,30 @@ function renderStatusPill(openNow: boolean | undefined) {
   );
 }
 
-function ContactLinks({ details }: { details: PlaceDetailsData }) {
-  if (!details.phone && !details.website) {
-    return null;
-  }
+export function GoogleMapsLink({ place }: { place: Place }) {
+  return (
+    <a
+      className="inline-flex min-w-0 items-center gap-1.5 text-[0.85rem] text-[#1d4ed8] hover:underline"
+      href={googleMapsUrl(place)}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <MapPinIcon />
+      Open in Google Maps
+    </a>
+  );
+}
+
+function ContactLinks({
+  details,
+  place,
+}: {
+  details: PlaceDetailsData;
+  place: Place;
+}) {
   return (
     <div className="grid gap-1.5">
+      <GoogleMapsLink place={place} />
       {details.phone ? (
         <a
           className="inline-flex items-center gap-1.5 text-[0.85rem] text-[#1d4ed8] hover:underline"
@@ -217,6 +236,26 @@ function GlobeIcon() {
       <circle cx="12" cy="12" r="10" />
       <line x1="2" x2="22" y1="12" y2="12" />
       <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="shrink-0"
+      fill="none"
+      height="13"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      width="13"
+    >
+      <path d="M20 10c0 4.99-5.52 10.54-7.39 12.24a.9.9 0 0 1-1.22 0C9.52 20.54 4 14.99 4 10a8 8 0 0 1 16 0z" />
+      <circle cx="12" cy="10" r="3" />
     </svg>
   );
 }

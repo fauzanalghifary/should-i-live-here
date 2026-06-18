@@ -55,6 +55,19 @@ export function formatWebsite(url: string): string {
   }
 }
 
+export function googleMapsUrl(place: Place): string {
+  const params = new URLSearchParams({
+    api: "1",
+    query: `${place.lat.toString()},${place.lng.toString()}`,
+  });
+
+  if (place.id) {
+    params.set("query_place_id", place.id);
+  }
+
+  return `https://www.google.com/maps/search/?${params.toString()}`;
+}
+
 function compareByRating(a: Place, b: Place) {
   return (
     valueOrBottom(b.rating) - valueOrBottom(a.rating) ||

@@ -1,4 +1,8 @@
-import { CategoryTagsLine, PlaceDetailsBody } from "./PlaceDetailsBody";
+import {
+  CategoryTagsLine,
+  GoogleMapsLink,
+  PlaceDetailsBody,
+} from "./PlaceDetailsBody";
 import type { Place } from "./types";
 import { usePlaceDetails } from "./usePlaceDetails";
 
@@ -32,13 +36,14 @@ export function PlaceDetails({ place }: PlaceDetailsProps) {
 
 function FallbackBody({ place }: { place: Place }) {
   return (
-    <>
+    <div className="grid gap-3">
       {place.address ? (
         <p className="m-0 mt-1 line-clamp-2 text-[0.85rem] leading-snug text-[#405047]">
           {place.address}
         </p>
       ) : null}
+      <GoogleMapsLink place={place} />
       <CategoryTagsLine categories={place.categories} />
-    </>
+    </div>
   );
 }

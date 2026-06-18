@@ -8,7 +8,7 @@
 
 ## Quick Demo
 
-- https://www.youtube.com/watch?v=vjLC6roOf0k
+- https://www.youtube.com/watch?v=HqqD3vIwkDI
 
 ## How to run locally
 

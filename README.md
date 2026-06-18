@@ -4,7 +4,7 @@
 
 ## Live URL
 
-- https://where-should-i-live.fauzanalghifary.id/
+- https://should-i-live-here.fauzanalghifary.id/
 
 ## Quick Demo
 

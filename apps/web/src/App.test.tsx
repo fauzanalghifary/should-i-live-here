@@ -60,7 +60,7 @@ describe("App", () => {
         Promise.resolve({
           counts: {
             education: 0,
-            essentials: 0,
+            food_cafe: 0,
             green_space: 0,
             healthcare: 0,
             transport: 0,
@@ -69,7 +69,7 @@ describe("App", () => {
           lng: 106.8456,
           places: {
             education: [],
-            essentials: [],
+            food_cafe: [],
             green_space: [],
             healthcare: [],
             transport: [],

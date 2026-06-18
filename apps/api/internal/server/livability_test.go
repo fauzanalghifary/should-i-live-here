@@ -58,11 +58,11 @@ func TestLivabilityHandler(t *testing.T) {
 				if report.Lat != -6.2 || report.Lng != 106.8 {
 					t.Fatalf("unexpected coords: %+v", report)
 				}
-				if report.Counts.Essentials != 5 {
-					t.Fatalf("expected essentials 5, got %d", report.Counts.Essentials)
+				if report.Counts.FoodCafe != 5 {
+					t.Fatalf("expected food cafe 5, got %d", report.Counts.FoodCafe)
 				}
-				if len(report.Places.Essentials) != 5 {
-					t.Fatalf("expected 5 essential places, got %d", len(report.Places.Essentials))
+				if len(report.Places.FoodCafe) != 5 {
+					t.Fatalf("expected 5 food cafe places, got %d", len(report.Places.FoodCafe))
 				}
 			},
 		},

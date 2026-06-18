@@ -2,11 +2,12 @@ package livability
 
 import (
 	"context"
+	"strings"
 	"sync"
 )
 
 type Categories struct {
-	Essentials int `json:"essentials"`
+	FoodCafe   int `json:"food_cafe"`
 	Transport  int `json:"transport"`
 	Healthcare int `json:"healthcare"`
 	Education  int `json:"education"`
@@ -44,7 +45,7 @@ type PlaceDetails struct {
 }
 
 type PlacesByCategory struct {
-	Essentials []Place `json:"essentials"`
+	FoodCafe   []Place `json:"food_cafe"`
 	Transport  []Place `json:"transport"`
 	Healthcare []Place `json:"healthcare"`
 	Education  []Place `json:"education"`
@@ -75,15 +76,44 @@ func NewService(fetcher Fetcher) *Service {
 
 type categoryQuery struct {
 	name       string
-	categories string
+	categories []string
 }
 
 var categoryQueries = []categoryQuery{
-	{"essentials", "convenience_store,grocery_store,supermarket,market,discount_store,discount_supermarket,general_store,food_store"},
-	{"transport", "bus_station,train_station,subway_station,light_rail_station,transit_station,ferry_terminal"},
-	{"healthcare", "hospital,general_hospital,medical_clinic,medical_center,doctor,pharmacy,drugstore"},
-	{"education", "school,primary_school,secondary_school,university,preschool,educational_institution"},
-	{"green_space", "park,city_park,garden,playground,plaza"},
+	{
+		name: "food_cafe",
+		categories: []string{
+			"restaurant",
+			"cafe",
+			"coffee_shop",
+			"bakery",
+			"meal_takeaway",
+			"food_court",
+			"diner",
+			"dessert_shop",
+			"convenience_store",
+			"grocery_store",
+			"supermarket",
+			"market",
+			"discount_supermarket",
+		},
+	},
+	{
+		name:       "transport",
+		categories: []string{"bus_station", "train_station", "subway_station", "light_rail_station", "transit_station", "ferry_terminal"},
+	},
+	{
+		name:       "healthcare",
+		categories: []string{"hospital", "general_hospital", "medical_clinic", "medical_center", "doctor", "pharmacy", "drugstore"},
+	},
+	{
+		name:       "education",
+		categories: []string{"school", "primary_school", "secondary_school", "university", "preschool", "educational_institution"},
+	},
+	{
+		name:       "green_space",
+		categories: []string{"park", "city_park", "garden", "playground", "plaza"},
+	},
 }
 
 func (s *Service) PlaceDetails(ctx context.Context, id string) (PlaceDetails, error) {
@@ -104,7 +134,7 @@ func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) 
 		wg.Add(1)
 		go func(q categoryQuery) {
 			defer wg.Done()
-			places, err := s.fetcher.FindNearbyPlaces(ctx, lat, lng, s.radius, q.categories)
+			places, err := s.fetcher.FindNearbyPlaces(ctx, lat, lng, s.radius, q.categoryList())
 			resultCh <- result{name: q.name, places: places, err: err}
 		}(q)
 	}
@@ -128,18 +158,38 @@ func (s *Service) Report(ctx context.Context, lat, lng float64) (Report, error) 
 		Lng:          lng,
 		RadiusMeters: s.radius,
 		Counts: Categories{
-			Essentials: counts["essentials"],
+			FoodCafe:   counts["food_cafe"],
 			Transport:  counts["transport"],
 			Healthcare: counts["healthcare"],
 			Education:  counts["education"],
 			GreenSpace: counts["green_space"],
 		},
 		Places: PlacesByCategory{
-			Essentials: places["essentials"],
+			FoodCafe:   places["food_cafe"],
 			Transport:  places["transport"],
 			Healthcare: places["healthcare"],
 			Education:  places["education"],
 			GreenSpace: places["green_space"],
 		},
 	}, nil
+}
+
+func (q categoryQuery) categoryList() string {
+	return strings.Join(q.categories, ",")
+}
+
+func categoryTypes(category string) map[string]struct{} {
+	for _, q := range categoryQueries {
+		if q.name != category {
+			continue
+		}
+
+		types := make(map[string]struct{}, len(q.categories))
+		for _, category := range q.categories {
+			types[category] = struct{}{}
+		}
+		return types
+	}
+
+	return nil
 }

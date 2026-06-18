@@ -24,10 +24,10 @@ describe("CategorySection", () => {
 
     render(
       <CategorySection
-        categoryKey="essentials"
+        categoryKey="food_cafe"
         count={1}
         isExpanded
-        label="Daily essentials"
+        label="Food, Cafe, and Groceries"
         onPlaceSelect={handlePlaceSelect}
         onToggle={vi.fn()}
         places={[place]}
@@ -44,10 +44,10 @@ describe("CategorySection", () => {
   it("sorts places by highest rating", () => {
     render(
       <CategorySection
-        categoryKey="essentials"
+        categoryKey="food_cafe"
         count={3}
         isExpanded
-        label="Daily essentials"
+        label="Food, Cafe, and Groceries"
         onPlaceSelect={vi.fn()}
         onToggle={vi.fn()}
         places={[
@@ -98,10 +98,10 @@ describe("CategorySection", () => {
 
     render(
       <CategorySection
-        categoryKey="essentials"
+        categoryKey="food_cafe"
         count={2}
         isExpanded
-        label="Daily essentials"
+        label="Food, Cafe, and Groceries"
         onPlaceSelect={vi.fn()}
         onToggle={vi.fn()}
         places={[

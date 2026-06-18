@@ -6,7 +6,32 @@ import (
 )
 
 func preparePlaces(category string, places []Place) []Place {
-	return dedupeNearbyPlaces(filterNamedPlaces(places))
+	return dedupeNearbyPlaces(filterCategoryPlaces(category, filterNamedPlaces(places)))
+}
+
+func filterCategoryPlaces(category string, places []Place) []Place {
+	allowedTypes := categoryTypes(category)
+	if len(allowedTypes) == 0 {
+		return places
+	}
+
+	filtered := make([]Place, 0, len(places))
+	for _, place := range places {
+		if len(place.Categories) == 0 || hasAllowedCategory(place.Categories, allowedTypes) {
+			filtered = append(filtered, place)
+		}
+	}
+	return filtered
+}
+
+func hasAllowedCategory(categories []string, allowedTypes map[string]struct{}) bool {
+	for _, category := range categories {
+		normalized := strings.TrimSpace(strings.ToLower(category))
+		if _, ok := allowedTypes[normalized]; ok {
+			return true
+		}
+	}
+	return false
 }
 
 func filterNamedPlaces(places []Place) []Place {

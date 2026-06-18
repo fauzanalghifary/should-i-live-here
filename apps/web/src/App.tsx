@@ -6,7 +6,7 @@ import type { CategoryKey, Place } from "./report/types";
 import { useLivabilityReport } from "./report/useLivabilityReport";
 import "./index.css";
 
-const DEFAULT_CATEGORY: CategoryKey = "essentials";
+const DEFAULT_CATEGORY: CategoryKey = "food_cafe";
 
 const LocationMap = lazy(async () => {
   const module = await import("./location-map/LocationMap");
@@ -133,7 +133,8 @@ function IntroModal({ onDismiss }: IntroModalProps) {
         </h1>
         <p className="m-0 text-[1.02rem] leading-[1.55] text-[#405047]">
           Pick a point on the map, then get a quick report on nearby everyday
-          essentials.
+          food, cafes, groceries, transport, healthcare, education, and green
+          spaces.
         </p>
 
         <button

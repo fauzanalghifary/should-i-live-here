@@ -128,7 +128,7 @@ func (c *GooglePlacesClient) FindNearbyPlaces(ctx context.Context, lat, lng floa
 			Lng:            googlePlace.Location.Longitude,
 			Rating:         googlePlace.Rating,
 			RatingCount:    googlePlace.UserRatingCount,
-			Categories:     googlePlace.Types,
+			Categories:     googlePlaceCategories(googlePlace.Types, googlePlace.PrimaryType),
 		})
 	}
 
@@ -211,7 +211,7 @@ func (c *GooglePlacesClient) GetPlaceDetails(ctx context.Context, id string) (Pl
 		Website:        payload.WebsiteURI,
 		PriceLevel:     payload.PriceLevel,
 		BusinessStatus: payload.BusinessStatus,
-		Categories:     payload.Types,
+		Categories:     googlePlaceCategories(payload.Types, payload.PrimaryType),
 	}
 
 	hours := payload.CurrentOpeningHours
@@ -273,6 +273,29 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func googlePlaceCategories(types []string, primaryType string) []string {
+	categories := make([]string, 0, len(types)+1)
+	seen := make(map[string]struct{}, len(types)+1)
+
+	for _, category := range types {
+		normalized := strings.TrimSpace(category)
+		if normalized == "" {
+			continue
+		}
+		categories = append(categories, normalized)
+		seen[normalized] = struct{}{}
+	}
+
+	normalizedPrimaryType := strings.TrimSpace(primaryType)
+	if normalizedPrimaryType != "" {
+		if _, ok := seen[normalizedPrimaryType]; !ok {
+			categories = append(categories, normalizedPrimaryType)
+		}
+	}
+
+	return categories
 }
 
 func splitGooglePlaceTypes(categories string) []string {

@@ -29,7 +29,7 @@ export type PlaceDetails = {
 };
 
 export type CategoryCounts = {
-  essentials: number;
+  food_cafe: number;
   transport: number;
   healthcare: number;
   education: number;
@@ -37,7 +37,7 @@ export type CategoryCounts = {
 };
 
 export type PlacesByCategory = {
-  essentials: Place[];
+  food_cafe: Place[];
   transport: Place[];
   healthcare: Place[];
   education: Place[];

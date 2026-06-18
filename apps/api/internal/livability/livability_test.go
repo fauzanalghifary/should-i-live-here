@@ -58,11 +58,11 @@ func TestServiceReport(t *testing.T) {
 				if r.RadiusMeters != 2000 {
 					t.Fatalf("expected radius 2000, got %d", r.RadiusMeters)
 				}
-				if r.Counts.Essentials != 3 || r.Counts.GreenSpace != 3 {
+				if r.Counts.FoodCafe != 3 || r.Counts.GreenSpace != 3 {
 					t.Fatalf("counts not populated: %+v", r.Counts)
 				}
-				if len(r.Places.Essentials) != 3 || r.Places.Essentials[0].Name != "Place 1" {
-					t.Fatalf("places not populated: %+v", r.Places.Essentials)
+				if len(r.Places.FoodCafe) != 3 || r.Places.FoodCafe[0].Name != "Place 1" {
+					t.Fatalf("places not populated: %+v", r.Places.FoodCafe)
 				}
 			},
 		},

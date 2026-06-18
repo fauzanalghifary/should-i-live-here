@@ -13,7 +13,7 @@ type ReportCardProps = {
 };
 
 const CATEGORY_LABELS: Record<CategoryKey, string> = {
-  essentials: "Daily essentials",
+  food_cafe: "Food, Cafe, and Groceries",
   transport: "Public transport",
   healthcare: "Healthcare",
   education: "Education",
@@ -21,7 +21,7 @@ const CATEGORY_LABELS: Record<CategoryKey, string> = {
 };
 
 const CATEGORY_ORDER: CategoryKey[] = [
-  "essentials",
+  "food_cafe",
   "transport",
   "healthcare",
   "education",

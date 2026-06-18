@@ -42,9 +42,9 @@ Google Maps and OpenStreetMap are great for exploring raw map data, but they do 
 
 ## Scope
 
-In scope: an interactive map, click-to-inspect flow, Indonesia-focused validation, nearby place lookup, sortable category results for food, cafe, and groceries, transport, healthcare, education, and green spaces, plus place detail previews.
+In scope: an interactive map, click-to-inspect flow, Indonesia-focused validation, nearby place lookup, sortable category results.
 
-Out of scope: user accounts, saved searches, crime data, rental prices, commute routing, internet quality, historical trends, and city-to-city comparisons.
+Out of scope: user accounts, saved searches, comprehensive report, AI Analyzer, and location comparisons.
 
 ## Assumptions
 
@@ -58,4 +58,10 @@ I assumed nearby services are a useful proxy for first-pass livability, and that
 
 ## How I'd know it's working
 
-The app is working if users can inspect a location in under a minute and leave with a clearer decision: research more, skip it, or compare another area. Next, I would validate the category results with real relocation scenarios, add configurable priorities, and improve the report with price, commute, and safety signals.
+The app is working if users can inspect a location in under a minute and leave with a clearer decision: research more, skip it, or compare another area. 
+
+## What's Next?
+
+Next, I would add user accounts and saved searches so people can keep track of areas they are considering.
+
+After that, I would make the report more comprehensive. I would also explore an AI analyzer that summarizes tradeoffs in plain language, then add location comparisons so users can evaluate two or three areas side by side.
